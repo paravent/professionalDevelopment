@@ -1,6 +1,6 @@
 <?php
 require_once "pdo.php";
-
+session_start();
 if (!isset($_GET['show_id'])) {
     die("ID parameter missing");
 }
@@ -40,8 +40,20 @@ $stmt->execute(array(
         <title>Movie DB</title>
         <meta name="description" contents="Just a test website for MOVIES DB Project">
         <link rel="stylesheet" href="style.css" type="text/css">
-		<a href="login.php">LOGIN</a></li>
-                <b><?php echo htmlspecialchars($_SESSION["username"]); ?></b>
+                <div id="dynamic-button">
+                    <?php
+                        if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
+                        
+                            echo " <a href=\"logout.php\">LOGOUT</a>";
+                            echo "<b>           </b>"; 
+                            echo htmlspecialchars($_SESSION["username"]);
+                            
+                
+                }
+                else {
+                    echo " <a href=\"login.php\">LOGIN</a>";
+                }
+                ?>
     </head>
     <body>
         <header>
