@@ -3,14 +3,37 @@ require_once "pdo.php";
 session_start();
 
 
-$stmt = $pdo->prepare('SELECT * FROM mytable LIMIT 10');
+$stmt = $pdo->prepare('SELECT * FROM mytable');
 $stmt->execute();
 
+// $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
+// when the homepage is loaded/reloaded
+
+// array of random movies that is used in the homepage
 $mainPageMoviesArr = array();
 
+// full movies array that is used to extract random movies from
+$fullMoviesArray = array();
+
+// add all movies dataset to $fullMoviesArray
 while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
-    $mainPageMoviesArr[] = $dbResults;
+    $fullMoviesArray[] = $dbResults;
 }
+
+// pick out random movies from the $fullMoviesArray dataset
+
+$fullArrayLength = count($fullMoviesArray); // used to generate random index within bounds of the array
+$numbersUsedArray = array(); // random indexes already used so movies don't duplicate on homepage
+
+while (count($mainPageMoviesArr) < 10) {
+    $randomIndex = rand(0, $fullArrayLength-1);
+    // if $randomIndex is not used yet
+    if (!in_array($randomIndex, $numbersUsedArray)) {
+        $mainPageMoviesArr[] = $fullMoviesArray[$randomIndex];
+        $numbersUsedArray[] = $randomIndex; // to make sure this index is not used again
+    }
+}
+
 
 ?>
 
