@@ -1,0 +1,144 @@
+/* helper classes */
+.fa-star
+{
+    color: rgb(255, 217, 0)  !important;
+}
+
+.navbar
+{
+    background-color: #303030 !important;
+}
+.line
+{
+    margin-top: 3rem;
+}
+/* colours */
+.colour-secondary
+{
+    color: #858585 !important;
+}
+.colour-3
+{
+    color: #505050 !important
+}
+
+.nav-item,.dropdown button, .card .btn,.card a, .colour-primary
+
+{
+    color: #BEBEBE !important;
+}
+hr
+{
+    background-color: #BEBEBE ;
+    padding-top: 1px;
+}
+/* background colour */
+
+html,body, .jumbotron,.search,.form-control
+{
+    background-color: #262626!important;
+}
+.search,.form-control
+{
+    border: none !important;
+    color: #BEBEBE !important;
+    border-radius: 0% !important;
+}
+
+.form-control
+{
+    width: 20rem !important;
+}
+.jumbotron
+{
+    height: 60vw !important;
+    padding: 0% !important;
+    color: #BEBEBE !important;
+}
+.jumbotron .container
+{
+    padding-top: 20vw;
+}
+
+/* cards section */
+.card
+{
+    background-color: #2b2b2b !important;
+    color: #BEBEBE !important;
+}
+.card-body
+{
+    padding: 1rem;
+}
+.cards .card-container
+{
+    margin-top: 2rem !important;
+}
+.card i
+{
+    width: 20px !important;
+}
+.card .btn
+{
+    color: #BEBEBE !important;
+    padding: .5rem 0;
+    width: 100%;
+    text-align: left;
+}
+.card-text-stars
+{
+    display: inline;
+}
+
+/* footer */
+.footer
+{
+    margin-top: 2rem;
+    padding:5rem;
+}
+.footer a i 
+{
+    padding: 0 2rem;
+
+}
+.social,.footer-options
+{
+    margin-bottom: 1rem;
+}
+
+
+/* carousel top page */
+#carouselExampleIndicators
+{
+    height: 90vh;
+}
+
+#carouselExampleIndicators img
+{
+    width: auto;
+    height: 93vh;
+    padding: 2rem;
+}
+
+/* wishlist */
+.wishlist, .search 
+{
+    margin-top: 10rem;
+}
+.wishlist .container, .search .container
+{
+    background-color: #2D2C2C;
+}
+
+.btn-remove-wishlist
+{
+    background-color: #505050 !important;
+}
+.wishlist-body, .search-body
+{
+    padding-bottom: 2rem;
+}
+.wishlist-header, .search-header
+{
+    padding: 2rem;
+}
