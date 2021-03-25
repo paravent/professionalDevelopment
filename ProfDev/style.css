@@ -1,8 +1,10 @@
-img {
+body {
     text-align: center;
+    max-width: 800px;
+    margin: 10px auto;
 }
 
-body {
+img {
     text-align: center;
 }
 
@@ -18,4 +20,30 @@ ul li {
 
 a {
     text-decoration: none;
+    color: black;
+}
+
+#movie-data {
+    margin: 20px auto;
+}
+
+#main-movie,
+#recommendations {
+    display: flex;
+}
+
+#movie-wall {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#movie-wall article {
+    width: 150px;
+    margin: 5px;
+}
+
+#movie-wall,
+#recommendations {
+    margin-top: 50px;
 }
