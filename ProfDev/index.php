@@ -1,34 +1,38 @@
 <?php
 require_once "pdo.php";
 session_start();
-if (!isset($_GET['show_id'])) {
-    die("ID parameter missing");
+
+
+$stmt = $pdo->prepare('SELECT * FROM mytable');
+$stmt->execute();
+
+// $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
+// when the homepage is loaded/reloaded
+
+// array of random movies that is used in the homepage
+$mainPageMoviesArr = array();
+
+// full movies array that is used to extract random movies from
+$fullMoviesArray = array();
+
+// add all movies dataset to $fullMoviesArray
+while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+    $fullMoviesArray[] = $dbResults;
 }
 
-// Set movie IMG id variable if GET parameter set, to be used in loading a poster for the movie from local storage
-// added onto file name dynamically. Adds empty string if not set.
-$movieImgId = "";
+// pick out random movies from the $fullMoviesArray dataset
 
-if (isset($_GET['movieImgId'])) {
-    $movieImgId = $_GET['movieImgId'];
+$fullArrayLength = count($fullMoviesArray); // used to generate random index within bounds of the array
+$numbersUsedArray = array(); // random indexes already used so movies don't duplicate on homepage
+
+while (count($mainPageMoviesArr) < 10) {
+    $randomIndex = rand(0, $fullArrayLength-1);
+    // if $randomIndex is not used yet
+    if (!in_array($randomIndex, $numbersUsedArray)) {
+        $mainPageMoviesArr[] = $fullMoviesArray[$randomIndex];
+        $numbersUsedArray[] = $randomIndex; // to make sure this index is not used again
+    }
 }
-
-// Set movie TRAILER IMG id variable if GET parameter set, to be used in loading a poster for the movie from local storage
-// added onto file name dynamically. Adds empty string if not set.
-$trailerImgId = "";
-
-if (isset($_GET['trailerImgId'])) {
-    $trailerImgId = $_GET['trailerImgId'];
-}
-
-
-$movieShowId = $_GET['show_id'];
-
-
-$stmt = $pdo->prepare('SELECT * FROM mytable WHERE show_id=:movieId');
-$stmt->execute(array(
-    ':movieId' => $movieShowId
-));
 
 
 ?>
@@ -66,32 +70,86 @@ $stmt->execute(array(
             </nav>
         </header>
         <div id="main-contents">
-            <?php
-                // add img id dynamically based on GET parameters according to which movie is being viewed
-                // image files are going to be using name syntax such as: movieImg + movieId + .png, e.g. "movieImg10530.png"
-                // for testing purposes, $movieImgId variable doesn't add any ID, just an empty string.
-                echo '<img src="movieImg' . $movieImgId .  '.png" alt="movie poster">';
-                echo '<table border="1">';
-                echo '<tr><th>Adult?</th><th>Title</th><th>Overview</th><th>Popularity</th></tr>';
-
-                while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    echo '<tr><td>';
-                    echo htmlentities($dbResults['adult']);
-                    echo '</td><td>';
-                    echo htmlentities($dbResults['original_title']);
-                    echo '</td><td>';
-                    echo htmlentities($dbResults['overview']);
-                    echo '</td><td>';
-                    echo htmlentities($dbResults['popularity']);
-                    echo '</td></tr>';
-                }
-                echo '</table>';
-                
-                // same as movieImgId above, just a placeholder for now, need to think of a way to
-                // dynamically add trailer from youtube if possible
-                echo '<img src="trailerImg' . $trailerImgId .  '.png" alt="trailer poster">';
-                //echo '<pre>'; print_r($dbResults); echo '</pre>';
-            ?>
+            <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[0]['show_id']);?>">
+                <article id="main-movie">
+                    <div><img src="600x400dummy.png" alt="dummy movie poster" /></div>
+                    <div>
+                        <h2><?php echo htmlentities($mainPageMoviesArr[0]['title']); ?></h2>
+                        <p><?php echo htmlentities($mainPageMoviesArr[0]['rating']); ?></p>
+                        <p><?php echo htmlentities($mainPageMoviesArr[0]['description']); ?></p>
+                    </div>
+                </article>
+            </a>
+            
+            <div id="movie-wall">
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[1]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[1]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[1]['rating']); ?></p>
+                    </article>
+                </a>
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[2]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[2]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[2]['rating']); ?></p>
+                    </article>
+                </a>
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[3]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[3]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[3]['rating']); ?></p>
+                    </article>
+                </a>
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[4]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[4]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[4]['rating']); ?></p>
+                    </article>
+                </a>
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[5]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[5]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[5]['rating']); ?></p>
+                    </article>
+                </a>
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[6]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[6]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[6]['rating']); ?></p>
+                    </article>
+                </a>
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[7]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[7]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[7]['rating']); ?></p>
+                    </article>
+                </a>
+                <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[8]['show_id']);?>">
+                    <article>
+                        <img src="150x200dummy.png" alt="dummy movie poster">
+                        <h3><?php echo htmlentities($mainPageMoviesArr[8]['title']); ?></h3>
+                        <p><?php echo htmlentities($mainPageMoviesArr[8]['rating']); ?></p>
+                    </article>
+                </a>
+            </div>
+            
+            <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[9]['show_id']);?>">
+                <article id="recommendations">
+                    <div><img src="250x300dummy.png" alt="dummy movie poster" /></div>
+                    <div>
+                        <h2><?php echo htmlentities($mainPageMoviesArr[9]['title']); ?></h2>
+                        <p><?php echo htmlentities($mainPageMoviesArr[9]['rating']); ?></p>
+                        <p><?php echo htmlentities($mainPageMoviesArr[9]['description']); ?></p>
+                    </div>
+                </article>
+            </a>
         </div>
         <footer>
             All rights reserved &#169;
