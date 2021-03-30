@@ -1,3 +1,56 @@
+
+<?php 
+include "pdo.php"; 
+session_start();
+$servername = "localhost"; 
+$username = "root"; 
+$password = ""; 
+$tableName = "profdevtest"; 
+$mysqli = new mysqli($servername, $username, $password, $tableName);
+
+
+// Check connection
+if ($mysqli->connect_error) {
+  die();
+}
+
+
+$movie = $_GET['test'];
+
+$stmt = $pdo->prepare("SELECT * FROM mytable WHERE title LIKE '%$movie%'");
+$stmt->execute();
+
+// $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
+// when the homepage is loaded/reloaded
+
+// array of random movies that is used in the homepage
+$mainPageMoviesArr = array();
+
+// full movies array that is used to extract random movies from
+$fullMoviesArray = array();
+
+// add all movies dataset to $fullMoviesArray
+while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+    $fullMoviesArray[] = $dbResults;
+}
+
+// pick out random movies from the $fullMoviesArray dataset
+
+$fullArrayLength = count($fullMoviesArray); // used to generate random index within bounds of the array
+$numbersUsedArray = array(); // random indexes already used so movies don't duplicate on homepage
+
+while (count($mainPageMoviesArr) < 10) {
+    $randomIndex = rand(0, $fullArrayLength-1);
+    // if $randomIndex is not used yet
+    if (!in_array($randomIndex, $numbersUsedArray)) {
+        $mainPageMoviesArr[] = $fullMoviesArray[0];
+        $numbersUsedArray[] = 0; // to make sure this index is not used again
+    }
+}
+ 
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,22 +91,35 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link colour-primary" href="index.html">Home</a>
+                    <a class="nav-link colour-primary" href="index.php">Home</a>
+                    
                 </li>
                 <li class="nav-item">
                     <a class="nav-link colour-primary" href="wishlist.html">Wishlist</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link colour-primary" href="login.html">Login</a>
+                    <?php
+                        if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
+                        
+                            echo " <a class=\"nav-link colour-primary\"  </a> ";
+                            echo htmlspecialchars($_SESSION["username"]);
+                            echo " <a class=\"nav-link colour-primary\" href=\"logout.php\">Logout </a> ";
+                           
+                
+                }
+                else {
+                    echo " <a class=\"nav-link colour-primary\" href=\"login.php\">Login </a> ";
+                }
+                ?>
                 </li>
             </ul>
             <!-- <form class="form-inline my-2 my-lg-0"> -->
-            <form class="form-inline ">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="search btn-search btn my-2 my-sm-0" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
+            <form class="form-inline" action="search.php" method="get">
+                    <input class="form-control mr-sm-2"  type="text" name="test"  placeholder="Search" aria-label="Search">
+                    <button class="search btn-search btn my-2 my-sm-0" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
         </div>
     </nav>
 
@@ -68,8 +134,10 @@
         <div class="container">
             <!-- search header -->
             <section class="search-header">
-                <h1 class="colour-primary">Search results for: <span class="search-name">Interstellar</span></h1>
-                <p class="colour-primary">Related searches: <span class="search-results-number">3</span></p>
+                <h1 class="colour-primary">Search results for: <span class="search-name"><?php echo htmlentities($mainPageMoviesArr[0]['title']); ?>
+                            </span></h1>
+                
+                <p class="colour-primary">Related searches: <span class="search-results-number"> <?php echo htmlentities($fullArrayLength);  ?> </span></p>
                 <hr>
             </section>
             <!-- wishlist body -->
@@ -84,25 +152,18 @@
                     </div>
                     <!-- wishlist-instance-body -->
                     <div class="wishlist-instance-body col-md-8 mb-3 mb-md-0">
-                        <h1 class="colour-primary">Interstellar</h1>
-                        <span class="wishlist-movie-duration colour-3">1h 22mins</span>
+                        <h1 class="colour-primary"><?php echo htmlentities($mainPageMoviesArr[0]['title']); ?>
+                            </h1>
+                        <span class="wishlist-movie-duration colour-3"><?php echo htmlentities($mainPageMoviesArr[0]['duration']); ?></span>
                         <span class="colour-3"> | </span>
-                        <span class="wishlist-movie-genre colour-3">Drama</span>
+                        <span class="wishlist-movie-genre colour-3"><?php echo htmlentities($mainPageMoviesArr[0]['type']); ?></span>
                         <span class="colour-3"> | </span>
-                        <span class="wishlist-movie-release-date colour-3">6 December 2016</span>
+                        <span class="wishlist-movie-release-date colour-3"><?php echo htmlentities($mainPageMoviesArr[0]['release_year']); ?></span>
                         <br>
-                        <h4 style="display: inline;" class="colour-primary">4.5</h4>
+                        <h4 style="display: inline;" class="colour-primary"><?php echo htmlentities($mainPageMoviesArr[0]['rating']); ?></h4>
                         <i class="fas fa-star fa-1x"></i>
                         <hr>
-                        <p class="colour-secondary"> On the day she celebrates her birthday, Jeanne, a young actress, is
-                            told by her
-                            mother her father is an Indian she once met on the banks on the river Ganges. From then on,
-                            Jeanne acts
-                            with singleness of purpose: she leaves the rehearsal of the the play "Sainte Jeanne des
-                            Abattoirs" she had
-                            wanted so much to be in, accepts a shameful role in a poor movie just for the money, buys an
-                            air ticket
-                            and flies to India, where she both hopes and fears to meet her biological father... </p>
+                        <p class="colour-secondary"> <?php echo htmlentities($mainPageMoviesArr[0]['description']); ?></p></p>
                         <button type="button" class="btn colour-primary align-self-center btn-remove-wishlist">
                             <!-- <i class="fas fa-minus fa-2x colour-primary"></i>  -->
                             Remove from wishlist

@@ -94,12 +94,12 @@ while (count($mainPageMoviesArr) < 10) {
               </ul>
                 
               <!-- <form class="form-inline my-2 my-lg-0"> -->
-                <form class="form-inline ">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="search btn-search btn my-2 my-sm-0" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-              </form>
+                <form class="form-inline" action="search.php" method="get">
+                    <input class="form-control mr-sm-2"  type="text" name="test"  placeholder="Search" aria-label="Search">
+                    <button class="search btn-search btn my-2 my-sm-0" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
             </div>
         </nav>
 
