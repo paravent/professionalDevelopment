@@ -108,9 +108,9 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
                     echo '<tr><td>';
                     echo htmlentities($movieShowArr[0]['tvSeriesName']);
                     echo '</td><td>';
-                    echo htmlentities($dbResults[0]['tvSeriesDescription']);
+                    echo htmlentities($movieShowArr[0]['tvSeriesDescription']);
                     echo '</td><td>';
-                    echo htmlentities($dbResults[0]['tvSeriesScore']);
+                    echo htmlentities($movieShowArr[0]['tvSeriesScore']);
                     echo '</td></tr>';
                 }
 
