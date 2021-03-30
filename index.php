@@ -2,9 +2,20 @@
 require_once "pdo.php";
 session_start();
 
+// following up to line 10 for debbuging
+// $stmt = $pdo->prepare('SELECT * FROM movies WHERE movieID=68721');
+// $stmt->execute();
 
-$stmt = $pdo->prepare('SELECT * FROM mytable');
+// $stmt = $pdo->prepare('SELECT * FROM tvSeries WHERE tvSeriesID=6');
+// $stmt->execute();
+
+// queries to randomly select movies and tvSeries
+// which are then all put into $fullMoviesArray
+$stmt = $pdo->prepare('SELECT * FROM movies');
 $stmt->execute();
+
+$stmt2 = $pdo->prepare('SELECT * FROM tvSeries');
+$stmt2->execute();
 
 // $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
 // when the homepage is loaded/reloaded
@@ -17,6 +28,11 @@ $fullMoviesArray = array();
 
 // add all movies dataset to $fullMoviesArray
 while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+    $fullMoviesArray[] = $dbResults;
+}
+
+// add all tvSeries dataset to $fullMoviesArray
+while ($dbResults = $stmt2->fetch(PDO::FETCH_ASSOC)) { 
     $fullMoviesArray[] = $dbResults;
 }
 
@@ -33,7 +49,6 @@ while (count($mainPageMoviesArr) < 10) {
         $numbersUsedArray[] = $randomIndex; // to make sure this index is not used again
     }
 }
-
 
 ?>
 <!DOCTYPE html>
@@ -200,15 +215,55 @@ while (count($mainPageMoviesArr) < 10) {
                     </div>
                     <div class="col-md-3 mb-3 mb-md-0 card-container">
                         <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
+                                <?php 
+                                    // generate image link for use on line 238 just below
+                                    $imageLink = "";
+                                    if (array_key_exists("movieID", $mainPageMoviesArr[0])) {
+                                        $imageLink = $mainPageMoviesArr[0]['movieImageLink'];
+                                    } elseif (array_key_exists("tvSeriesID", $mainPageMoviesArr[0])) {
+                                        $imageLink = $mainPageMoviesArr[0]['tvSeriesImageLink'];
+                                    }
+
+                                    if ($imageLink != "") {
+                                        $imageLink = "img/movieTvShowImages" . $imageLink;
+                                    } else {
+                                        $imageLink = "img/movieImg.png";
+                                    }
+                                ?>
+                            <img class="card-img-top" src="<?php echo $imageLink;?>" alt="Card image cap">
                             <div class="card-body">
                               <h5 class=""> <a href="">Interstellar</a></h5>
-                              <a href="moviePage.php?show_id=<?php echo htmlentities($mainPageMoviesArr[0]['show_id']);?>">
+                              <a href="moviePage.php?movieID=<?php 
+                                if (array_key_exists("movieID", $mainPageMoviesArr[0])) {
+                                    echo htmlentities($mainPageMoviesArr[0]['movieID']);
+                                } elseif (array_key_exists("tvSeriesID", $mainPageMoviesArr[0])) {
+                                    echo htmlentities($mainPageMoviesArr[0]['tvSeriesID']);
+                                }
+                              ?>">
                             <article id="main-movie">
                             
-                        <h2><?php echo htmlentities($mainPageMoviesArr[0]['title']); ?></h2>
-                        <p><?php echo htmlentities($mainPageMoviesArr[0]['rating']); ?></p>
-                        <p><?php echo htmlentities($mainPageMoviesArr[0]['description']); ?></p>
+                        <h2><?php 
+                            if (array_key_exists("movieTitle", $mainPageMoviesArr[0])) {
+                                echo htmlentities($mainPageMoviesArr[0]['movieTitle']);
+                            } elseif (array_key_exists("tvSeriesName", $mainPageMoviesArr[0])) {
+                                echo htmlentities($mainPageMoviesArr[0]['tvSeriesName']);
+                            } ?>
+                        </h2>
+                        <p><?php 
+                            if (array_key_exists("movieScore", $mainPageMoviesArr[0])) {
+                                echo htmlentities($mainPageMoviesArr[0]['movieScore']);
+                            } elseif (array_key_exists("tvSeriesScore", $mainPageMoviesArr[0])) {
+                                echo htmlentities($mainPageMoviesArr[0]['tvSeriesScore']);
+                            } ?>
+                        </p>
+                        <p><?php 
+                            if (array_key_exists("movieDescription", $mainPageMoviesArr[0])) {
+                                echo htmlentities($mainPageMoviesArr[0]['movieDescription']);
+                            } elseif (array_key_exists("tvSeriesDescription", $mainPageMoviesArr[0])) {
+                                echo htmlentities($mainPageMoviesArr[0]['tvSeriesDescription']);
+                            }
+                            ?>
+                        </p>
                               <p class="card-text">
                                 <p class="card-text-stars">4.5</p>
                                 <i class="fas fa-star"></i>
