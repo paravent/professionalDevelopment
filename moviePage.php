@@ -84,11 +84,9 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
         </header>
         <div id="main-contents">
             <?php
-                // add img id dynamically based on GET parameters according to which movie is being viewed
-                // image files are going to be using name syntax such as: movieImg + movieId + .png, e.g. "movieImg10530.png"
-                // for testing purposes, $imageLink variable doesn't add any ID, just an empty string.
+                // add image dynamically, and if it doesn't exist add dummy movieImg.png
                 if ($imageLink != "") {
-                    echo '<img src="img/movieTvShowImages' . $imageLink .  '" alt="poster">';
+                    echo '<img src="img/movieTvShowImages' . $imageLink .  '" onerror="this.src=\'img/movieImg.png\'" alt="poster">';
                 } else {
                     echo '<img src="img/movieImg.png" alt="poster">';
                 }

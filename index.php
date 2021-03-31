@@ -1,10 +1,22 @@
 <?php
 require_once "pdo.php";
+require_once "functions.php";
 session_start();
 
-// following up to line 10 for debbuging
-// $stmt = $pdo->prepare('SELECT * FROM movies WHERE movieID=68721');
-// $stmt->execute();
+// following up to line 22 for debbuging, to create specific movies to debug image display
+// $stmt3 = $pdo->prepare('SELECT * FROM movies WHERE movieID=68721');
+// $stmt3->execute();
+
+// while ($dbResults = $stmt3->fetch(PDO::FETCH_ASSOC)) { 
+//     $singleMovie = $dbResults;
+// }
+
+// $stmt4 = $pdo->prepare('SELECT * FROM movies WHERE movieID=122917');
+// $stmt4->execute();
+
+// while ($dbResults = $stmt4->fetch(PDO::FETCH_ASSOC)) { 
+//     $singleMovieBrokenImg = $dbResults;
+// }
 
 // $stmt = $pdo->prepare('SELECT * FROM tvSeries WHERE tvSeriesID=6');
 // $stmt->execute();
@@ -41,7 +53,7 @@ while ($dbResults = $stmt2->fetch(PDO::FETCH_ASSOC)) {
 $fullArrayLength = count($fullMoviesArray); // used to generate random index within bounds of the array
 $numbersUsedArray = array(); // random indexes already used so movies don't duplicate on homepage
 
-while (count($mainPageMoviesArr) < 10) {
+while (count($mainPageMoviesArr) < 18) {
     $randomIndex = rand(0, $fullArrayLength-1);
     // if $randomIndex is not used yet
     if (!in_array($randomIndex, $numbersUsedArray)) {
@@ -49,6 +61,10 @@ while (count($mainPageMoviesArr) < 10) {
         $numbersUsedArray[] = $randomIndex; // to make sure this index is not used again
     }
 }
+
+// for debugging specific movies
+// $mainPageMoviesArr[0] = $singleMovie;
+// $mainPageMoviesArr[1] = $singleMovieBrokenImg;
 
 ?>
 <!DOCTYPE html>
@@ -200,156 +216,22 @@ while (count($mainPageMoviesArr) < 10) {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                                <?php 
-                                    // generate image link for use on line 238 just below
-                                    $imageLink = "";
-                                    if (array_key_exists("movieID", $mainPageMoviesArr[0])) {
-                                        $imageLink = $mainPageMoviesArr[0]['movieImageLink'];
-                                    } elseif (array_key_exists("tvSeriesID", $mainPageMoviesArr[0])) {
-                                        $imageLink = $mainPageMoviesArr[0]['tvSeriesImageLink'];
-                                    }
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[0]); ?>
+                    
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[1]); ?>
 
-                                    if ($imageLink != "") {
-                                        $imageLink = "img/movieTvShowImages" . $imageLink;
-                                    } else {
-                                        $imageLink = "img/movieImg.png";
-                                    }
-                                ?>
-                            <img class="card-img-top" src="<?php echo $imageLink;?>" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <a href="moviePage.php?movieID=<?php 
-                                if (array_key_exists("movieID", $mainPageMoviesArr[0])) {
-                                    echo htmlentities($mainPageMoviesArr[0]['movieID']);
-                                } elseif (array_key_exists("tvSeriesID", $mainPageMoviesArr[0])) {
-                                    echo htmlentities($mainPageMoviesArr[0]['tvSeriesID']);
-                                }
-                              ?>">
-                            <article id="main-movie">
-                            
-                        <h2><?php 
-                            if (array_key_exists("movieTitle", $mainPageMoviesArr[0])) {
-                                echo htmlentities($mainPageMoviesArr[0]['movieTitle']);
-                            } elseif (array_key_exists("tvSeriesName", $mainPageMoviesArr[0])) {
-                                echo htmlentities($mainPageMoviesArr[0]['tvSeriesName']);
-                            } ?>
-                        </h2>
-                        <p><?php 
-                            if (array_key_exists("movieScore", $mainPageMoviesArr[0])) {
-                                echo htmlentities($mainPageMoviesArr[0]['movieScore']);
-                            } elseif (array_key_exists("tvSeriesScore", $mainPageMoviesArr[0])) {
-                                echo htmlentities($mainPageMoviesArr[0]['tvSeriesScore']);
-                            } ?>
-                        </p>
-                        <p><?php 
-                            if (array_key_exists("movieDescription", $mainPageMoviesArr[0])) {
-                                echo htmlentities($mainPageMoviesArr[0]['movieDescription']);
-                            } elseif (array_key_exists("tvSeriesDescription", $mainPageMoviesArr[0])) {
-                                echo htmlentities($mainPageMoviesArr[0]['tvSeriesDescription']);
-                            }
-                            ?>
-                        </p>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </p>
-                            </div>
-                        </div>
-                    </div>
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[2]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[3]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[4]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[5]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[6]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[7]); ?>
+
                 </div>
             </div>
         </section>
@@ -369,57 +251,14 @@ while (count($mainPageMoviesArr) < 10) {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[8]); ?>
 
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                                
-                            
-                            </div>
-                        </div>
-                    </div>
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[9]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[10]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[11]); ?>
+                </div>
             </div>
         </section>
 
@@ -429,60 +268,16 @@ while (count($mainPageMoviesArr) < 10) {
         <!-- Currently in cinams  -->
         <section class="coming-in-cinema-section">
             <div class="container">
-                <p class="colour-primary">Currently in cinama</p>
+                <p class="colour-primary">Currently in Cinema</p>
                 <div class="row">
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                                
-                            
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                                
-                            
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0 card-container">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
-                            <div class="card-body">
-                              <h5 class=""> <a href="">Interstellar</a></h5>
-                              <p class="card-text">
-                                <p class="card-text-stars">4.5</p>
-                                <i class="fas fa-star"></i>
-                                <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
-                            </div>
-                        </div>
-                    </div>
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[12]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[13]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[14]); ?>
+
+                    <?php echo createMovieTvShowArtefact($mainPageMoviesArr[15]); ?>
+                </div>
             </div>
         </section>
 
