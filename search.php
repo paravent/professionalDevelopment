@@ -1,6 +1,7 @@
 
 <?php 
-include "pdo.php"; 
+include "pdo.php";
+require_once "functions.php";
 session_start();
 $servername = "localhost"; 
 $username = "root"; 
@@ -17,8 +18,11 @@ if ($mysqli->connect_error) {
 
 $movie = $_GET['test'];
 
-$stmt = $pdo->prepare("SELECT * FROM mytable WHERE title LIKE '%$movie%'");
+$stmt = $pdo->prepare("SELECT * FROM movies WHERE movieTitle LIKE '%$movie%'");
+$stmt2 = $pdo->prepare("SELECT * FROM tvseries WHERE tvSeriesName LIKE '%movie%' ");
+
 $stmt->execute();
+$stmt2->execute();
 
 // $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
 // when the homepage is loaded/reloaded
@@ -33,20 +37,15 @@ $fullMoviesArray = array();
 while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
     $fullMoviesArray[] = $dbResults;
 }
-
+while ($dbResults2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
+    $fulltvSeriesArray[] = $dbResults2;
+}
 // pick out random movies from the $fullMoviesArray dataset
-
-$fullArrayLength = count($fullMoviesArray); // used to generate random index within bounds of the array
+$resultArray = array_merge($fullMoviesArray, $fulltvSeriesArray );
+$fullArrayLength = count($resultArray); // used to generate random index within bounds of the array
 $numbersUsedArray = array(); // random indexes already used so movies don't duplicate on homepage
 
-while (count($mainPageMoviesArr) < 10) {
-    $randomIndex = rand(0, $fullArrayLength-1);
-    // if $randomIndex is not used yet
-    if (!in_array($randomIndex, $numbersUsedArray)) {
-        $mainPageMoviesArr[] = $fullMoviesArray[0];
-        $numbersUsedArray[] = 0; // to make sure this index is not used again
-    }
-}
+
  
 
 ?>
@@ -134,11 +133,20 @@ while (count($mainPageMoviesArr) < 10) {
         <div class="container">
             <!-- search header -->
             <section class="search-header">
-                <h1 class="colour-primary">Search results for: <span class="search-name"><?php echo htmlentities($mainPageMoviesArr[0]['title']); ?>
+                <h1 class="colour-primary">Search results for: <span class="search-name"><?php echo $movie; ?>
                             </span></h1>
                 
                 <p class="colour-primary">Related searches: <span class="search-results-number"> <?php echo htmlentities($fullArrayLength);  ?> </span></p>
                 <hr>
+                <div class="row">
+                    <?php
+                    for($x = 0; $x<=$fullArrayLength; $x++) {
+                        echo createMovieTvShowArtefact($resultArray[$x]);
+                    }
+
+                    ?>
+
+                </div>
             </section>
             <!-- wishlist body -->
             <section class="search-body">
@@ -147,23 +155,16 @@ while (count($mainPageMoviesArr) < 10) {
                     <!-- wishlist-instance-img -->
                     <div class="align-self-center wishlist-instance-image col-md-3 mb-3 mb-md-0 card-container">
                         <!-- <div class="card h-100"> -->
-                        <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
+
                         <!-- </div> -->
                     </div>
                     <!-- wishlist-instance-body -->
                     <div class="wishlist-instance-body col-md-8 mb-3 mb-md-0">
-                        <h1 class="colour-primary"><?php echo htmlentities($mainPageMoviesArr[0]['title']); ?>
-                            </h1>
-                        <span class="wishlist-movie-duration colour-3"><?php echo htmlentities($mainPageMoviesArr[0]['duration']); ?></span>
-                        <span class="colour-3"> | </span>
-                        <span class="wishlist-movie-genre colour-3"><?php echo htmlentities($mainPageMoviesArr[0]['type']); ?></span>
-                        <span class="colour-3"> | </span>
-                        <span class="wishlist-movie-release-date colour-3"><?php echo htmlentities($mainPageMoviesArr[0]['release_year']); ?></span>
-                        <br>
-                        <h4 style="display: inline;" class="colour-primary"><?php echo htmlentities($mainPageMoviesArr[0]['rating']); ?></h4>
-                        <i class="fas fa-star fa-1x"></i>
-                        <hr>
-                        <p class="colour-secondary"> <?php echo htmlentities($mainPageMoviesArr[0]['description']); ?></p></p>
+
+
+
+
+
                         <button type="button" class="btn colour-primary align-self-center btn-remove-wishlist">
                             <!-- <i class="fas fa-minus fa-2x colour-primary"></i>  -->
                             Remove from wishlist
