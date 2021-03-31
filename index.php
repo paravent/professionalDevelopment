@@ -240,16 +240,7 @@ while (count($mainPageMoviesArr) < 18) {
         <!-- coming up on section  -->
         <section class="coming-up-on-section">
             <div class="container">
-                <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Coming up on:
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <label class="dropdown-item" ><input type="radio" name="optradio" checked>Cinema</label>
-                    <label class="dropdown-item" ><input type="radio" name="optradio" checked>HBO</label>
-                    <label class="dropdown-item" ><input type="radio" name="optradio" checked>Netflix</label>
-                    </div>
-                </div>
+            <p class="colour-primary">Trending Now</p>
                 <div class="row">
                     <?php echo createMovieTvShowArtefact($mainPageMoviesArr[8]); ?>
 
