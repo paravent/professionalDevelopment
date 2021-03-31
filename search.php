@@ -5,7 +5,7 @@ session_start();
 $servername = "localhost"; 
 $username = "root"; 
 $password = ""; 
-$tableName = "profdevtest"; 
+$tableName = "profdev"; 
 $mysqli = new mysqli($servername, $username, $password, $tableName);
 
 
