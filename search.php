@@ -19,7 +19,7 @@ if ($mysqli->connect_error) {
 $movie = $_GET['test'];
 
 $stmt = $pdo->prepare("SELECT * FROM movies WHERE movieTitle LIKE '%$movie%'");
-$stmt2 = $pdo->prepare("SELECT * FROM tvseries WHERE tvSeriesName LIKE '%movie%' ");
+$stmt2 = $pdo->prepare("SELECT * FROM tvSeries WHERE tvSeriesName LIKE '%$movie%' ");
 
 $stmt->execute();
 $stmt2->execute();
@@ -32,6 +32,7 @@ $mainPageMoviesArr = array();
 
 // full movies array that is used to extract random movies from
 $fullMoviesArray = array();
+$fulltvSeriesArray = array();
 
 // add all movies dataset to $fullMoviesArray
 while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
