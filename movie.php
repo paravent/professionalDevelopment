@@ -9,19 +9,6 @@ if ( !isset($_GET['movieID']) and !isset($_GET['tvSeriesID']) ) {
 // added onto file name dynamically. Adds empty string if not set.
 $imageLink = "";
 
-// delete later probably
-// if (isset($_GET['movieImgId'])) {
-//     $imageLink = $_GET['movieImgId'];
-// }
-
-// Set movie TRAILER IMG id variable if GET parameter set, to be used in loading a poster for the movie from local storage
-// added onto file name dynamically. Adds empty string if not set.
-$trailerImgId = "";
-
-if (isset($_GET['trailerImgId'])) {
-    $trailerImgId = $_GET['trailerImgId'];
-}
-
 $movieShowId = "";
 
 if (isset($_GET['movieID'])) {
@@ -29,6 +16,7 @@ if (isset($_GET['movieID'])) {
 } elseif (isset($_GET['tvSeriesID'])) {
     $movieShowId = $_GET['tvSeriesID'];
 }
+
 
 
 // queries to select either movie or tvSeries that had been passed in by ID
@@ -86,7 +74,8 @@ while ($dbResults = $stmt4->fetch(PDO::FETCH_ASSOC)) {
     $movieShowArr[] = $dbResults;
 }
 
-print_r($movieShowArr);
+
+
 
 // used for retrieving other information, such as director
 $movieShowIdForJoins = "";
@@ -94,14 +83,13 @@ $stmt5;
 $movieShowArrWithDirector = array();
 
 // join tables of either movie or tvSeries for director retrieval
-if (array_key_exists("movieID", $movieShowArr[0])) {
+if (array_key_exists("movieTitle", $movieShowArr[0])) {
     $movieShowIdForJoins = $movieShowArr[0]['movieID'];
     $stmt5 = $pdo->prepare('SELECT * FROM movies INNER JOIN directedBy ON directedBy.movieID=movies.movieID INNER JOIN directors ON directedBy.directorID=directors.directorID WHERE movies.movieID=:movieId');
     $stmt5->execute(array(
         ':movieId' => $movieShowIdForJoins
     ));
-    
-} elseif (array_key_exists("tvSeriesID", $movieShowArr[0])) {
+} elseif (array_key_exists("tvSeriesName", $movieShowArr[0])) {
     $movieShowIdForJoins = $movieShowArr[0]['tvSeriesID'];
     $stmt5 = $pdo->prepare('SELECT * FROM tvSeries INNER JOIN directedBy ON directedBy.tvSeriesID=tvSeries.tvSeriesID INNER JOIN directors ON directedBy.directorID=directors.directorID WHERE tvSeries.tvSeriesID=:tvSeriesId');
     $stmt5->execute(array(
@@ -114,16 +102,12 @@ while ($dbResults = $stmt5->fetch(PDO::FETCH_ASSOC)) {
     $movieShowArrWithDirector[] = $dbResults;
 }
 
-print_r($movieShowArrWithDirector);
 
-// add results to array to use in the movie/tv show details section
-while ($dbResults = $stmt5->fetch(PDO::FETCH_ASSOC)) { 
-    $movieShowArrWithDirector[] = $dbResults;
-}
 
-if (array_key_exists("movieID", $movieShowArr[0])) {
+
+if (array_key_exists("movieImageLink", $movieShowArr[0])) {
     $imageLink = $movieShowArr[0]['movieImageLink'];
-} elseif (array_key_exists("tvSeriesID", $movieShowArr[0])) {
+} elseif (array_key_exists("tvSeriesImageLink", $movieShowArr[0])) {
     $imageLink = $movieShowArr[0]['tvSeriesImageLink'];
 }
 
@@ -284,22 +268,36 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
                         ?></h4>
                         <i class="fas fa-star fa-1x"></i>
                         <hr>
-                        <p class="colour-secondary"> On the day she celebrates her birthday, Jeanne, a young actress, is
-                            told by her
-                            mother her father is an Indian she once met on the banks on the river Ganges. From then on,
-                            Jeanne acts
-                            with singleness of purpose: she leaves the rehearsal of the the play "Sainte Jeanne des
-                            Abattoirs" she had
-                            wanted so much to be in, accepts a shameful role in a poor movie just for the money, buys an
-                            air ticket
-                            and flies to India, where she both hopes and fears to meet her biological father... </p>
+                        <p class="colour-secondary"><?php 
+                            if (array_key_exists("movieDescription", $movieShowArr[0])) {
+                                echo htmlentities($movieShowArr[0]['movieDescription']);
+                            } elseif (array_key_exists("tvSeriesDescription", $movieShowArr[0])) {
+                                echo htmlentities($movieShowArr[0]['tvSeriesDescription']);
+                            }
+                        ?></p>
                     </div>
                 </div>
 
                 <!-- movie details -->
                 <div class="row movie-details-section">
                     <div class="movie-details colour-primary  col-md-12 mb-3 mb-md-0">
-                        <p>Movie budget: <span class="movie-budget">80 mil USD</span> </p>
+                        <p>Budget: <span class="movie-budget"><?php 
+                            if (array_key_exists("movieBudget", $movieShowArr[0])) {
+                                // convert budget to millions
+                                $budget = $movieShowArr[0]['movieBudget'];
+                                if (is_numeric($budget)) {
+                                    $budget = $budget / 1000000;
+                                }
+                                echo $budget;
+                            } elseif (array_key_exists("tvSeriesBudget", $movieShowArr[0])) {
+                                // convert budget to millions
+                                $budget = $movieShowArr[0]['tvSeriesBudget'];
+                                if (is_numeric($budget)) {
+                                    $budget = $budget / 1000000;
+                                }
+                                echo $budget;
+                            }
+                        ?>mln</span> </p>
                     </div>
                     <div class="movie-details colour-primary col-md-12 mb-3 mb-md-0">
                         <p>Director: <span class="movie-director"><?php 
@@ -309,20 +307,52 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
                         ?></span></p>
                     </div>
                     <div class=" movie-details colour-primary col-md-12 mb-3 mb-md-0">
-                        <p>Movie duration: <span class="movie-duration">2h 30mins</span></p>
+                        <p>Duration: <span class="movie-duration"><?php 
+                            if (array_key_exists("movieDuration", $movieShowArr[0])) {
+                                echo htmlentities($movieShowArr[0]['movieDuration']);
+                            } elseif (array_key_exists("tvSeriesAverageDuration", $movieShowArr[0])) {
+                                echo htmlentities($movieShowArr[0]['tvSeriesAverageDuration']);
+                            }
+                            ?>min</span></p>
                     </div>
                     <div class="movie-details colour-primary  col-md-12 mb-3 mb-md-0">
-                        <p>Movie release date: <span class="movie-release-date"> 16 July 2010(UK)</span></p>
+                        <p>Release date: <span class="movie-release-date"> <?php 
+                            if (array_key_exists("movieReleaseDate", $movieShowArr[0])) {
+                                echo htmlentities($movieShowArr[0]['movieReleaseDate']);
+                            } elseif (array_key_exists("tvSeriesReleaseDate", $movieShowArr[0])) {
+                                echo htmlentities($movieShowArr[0]['tvSeriesReleaseDate']);
+                            }
+                        ?></span></p>
                     </div>
                     <div class="movie-details colour-primary  col-md-12 mb-3 mb-md-0">
-                        <p>Genre: <span class="movie-genre" >  Action, Adventure, Sci-Fi</span></p>
+                        <p>Genre(s): <span class="movie-genre" ><?php 
+                            // if genre is found, echo it
+                            for($x=0; $x<count($movieShowArr); $x++) {
+                                if (array_key_exists("genreName", $movieShowArr[$x])) {
+                                    echo htmlentities($movieShowArr[$x]['genreName']) . " ";
+                                }
+                            }
+                        ?></span></p>
                     </div>
-                    <div class="movie-details colour-primary movie-seasons col-md-12 mb-3 mb-md-0">
-                        <p>Seasons: <span class="movie-seasons-nr">4</span> </p>
-                    </div>
-                    <div class="movie-details colour-primary movie-episodes col-md-12 mb-3 mb-md-0">
-                        <p>Episodes: <span class="movies-episodes-nr" > 23</span> </p>
-                    </div>
+                    <?php
+                        if (array_key_exists("tvSeriesSeasonNumber", $movieShowArr[0])) {
+                            ?>
+                            <div class="movie-details colour-primary movie-seasons col-md-12 mb-3 mb-md-0">
+                                <p>Seasons: <span class="movie-seasons-nr"><?php
+                                echo htmlentities($movieShowArr[0]['tvSeriesSeasonNumber']);
+                            ?></span> </p>
+                            </div><?php
+                        }
+
+                        if (array_key_exists("tvSeriesEpisodeNumber", $movieShowArr[0])) {
+                            ?>
+                            <div class="movie-details colour-primary movie-episodes col-md-12 mb-3 mb-md-0">
+                                <p>Episodes: <span class="movies-episodes-nr" ><?php 
+                                    echo htmlentities($movieShowArr[0]['tvSeriesEpisodeNumber']);
+                                ?></span> </p>
+                            </div><?php
+                        }
+                    ?>
                     
                 </div>
 

@@ -30,7 +30,6 @@ function createMovieTvShowArtefact($movieTvShow) {
                 ?>
             <img class="card-img-top" src="<?php echo $imageLink; ?>" onerror="this.src='img/movieImg.png'" alt="Card image cap">
             <div class="card-body">
-                <h5 class=""> <a href="">Interstellar</a></h5>
                 <a href="movie.php?movieID=<?php 
                 if (array_key_exists("movieID", $movieTvShow)) {
                     echo htmlentities($movieTvShow['movieID']);
@@ -53,6 +52,7 @@ function createMovieTvShowArtefact($movieTvShow) {
                 } elseif (array_key_exists("tvSeriesScore", $movieTvShow)) {
                     echo htmlentities($movieTvShow['tvSeriesScore']);
                 } ?>
+                <i class="fas fa-star"></i>
             </p>
             <p><?php 
                 if (array_key_exists("movieDescription", $movieTvShow)) {
@@ -64,8 +64,6 @@ function createMovieTvShowArtefact($movieTvShow) {
             </p>
             </a>
                 <p class="card-text">
-                <p class="card-text-stars">4.5</p>
-                <i class="fas fa-star"></i>
                 <button class="btn"><i class="fas fa-plus"></i> Add to wishlist </i></button>
             </p>
             </div>
