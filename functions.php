@@ -31,7 +31,7 @@ function createMovieTvShowArtefact($movieTvShow) {
             <img class="card-img-top" src="<?php echo $imageLink; ?>" onerror="this.src='img/movieImg.png'" alt="Card image cap">
             <div class="card-body">
                 <h5 class=""> <a href="">Interstellar</a></h5>
-                <a href="moviePage.php?movieID=<?php 
+                <a href="movie.php?movieID=<?php 
                 if (array_key_exists("movieID", $movieTvShow)) {
                     echo htmlentities($movieTvShow['movieID']);
                 } elseif (array_key_exists("tvSeriesID", $movieTvShow)) {
