@@ -140,7 +140,7 @@ $numbersUsedArray = array(); // random indexes already used so movies don't dupl
                 <hr>
                 <div class="row">
                     <?php
-                    for($x = 0; $x<=$fullArrayLength; $x++) {
+                    for($x = 0; $x<$fullArrayLength; $x++) {
                         echo createMovieTvShowArtefact($resultArray[$x]);
                     }
 
