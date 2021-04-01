@@ -1,27 +1,13 @@
 <?php
 require_once "pdo.php";
+require_once "functions.php";
 
+// check whether movie or tvSeries ID was passed in through $_GET from previous page
 if ( !isset($_GET['movieID']) and !isset($_GET['tvSeriesID']) ) {
     die("ID parameter missing");
 }
 
-// Set movie IMG id variable if GET parameter set, to be used in loading a poster for the movie from local storage
-// added onto file name dynamically. Adds empty string if not set.
-$imageLink = "";
-
-// delete later probably
-// if (isset($_GET['movieImgId'])) {
-//     $imageLink = $_GET['movieImgId'];
-// }
-
-// Set movie TRAILER IMG id variable if GET parameter set, to be used in loading a poster for the movie from local storage
-// added onto file name dynamically. Adds empty string if not set.
-$trailerImgId = "";
-
-if (isset($_GET['trailerImgId'])) {
-    $trailerImgId = $_GET['trailerImgId'];
-}
-
+// get movie or tvSeries ID from $_GET parameters
 $movieShowId = "";
 
 if (isset($_GET['movieID'])) {
@@ -31,101 +17,14 @@ if (isset($_GET['movieID'])) {
 }
 
 
-// queries to select either movie or tvSeries that had been passed in by ID
-// (we don't know if it's going to be a movie or tvSeries)
-// which are then put to $movieShowArr to display
-// $stmt = $pdo->prepare('SELECT * FROM movies WHERE movieID=:movieId');
-// $stmt->execute(array(
-//     ':movieId' => $movieShowId
-// ));
+// get movies or tvSeries with genres if genre exists in the DB for that item, or without if it doesn't exist
+$movieShowArr = getMoviesShowsWithOrWithoutGenre($pdo, $movieShowId);
 
-// queries to select movie or tv show from database
-// first query is to select a movie with genre available, if it's not available
-// second query selects movies without genre
-// same for 3rd and 4th queries, first check tv series with genre available, if genre is not available
-// get tv series without genre
-$stmt = $pdo->prepare('SELECT * FROM movies INNER JOIN genreInstance ON genreInstance.movieID=movies.movieID INNER JOIN genres ON genreInstance.genreID=genres.genreID WHERE movies.movieID=:movieId');
-$stmt->execute(array(
-    ':movieId' => $movieShowId
-));
+// get director for the movie/tvSeries if it exists in the DB for that specific movie/tvSeries
+$movieShowArrWithDirector = getMoviesShowsWithDirector($pdo, $movieShowArr);
 
-$stmt2 = $pdo->prepare('SELECT * FROM movies WHERE movieID=:movieId');
-$stmt2->execute(array(
-    ':movieId' => $movieShowId
-));
-
-$stmt3 = $pdo->prepare('SELECT * FROM tvSeries INNER JOIN genreInstance ON genreInstance.tvSeriesID=tvSeries.tvSeriesID INNER JOIN genres ON genreInstance.genreID=genres.genreID WHERE tvSeries.tvSeriesID=:tvSeriesId');
-$stmt3->execute(array(
-    ':tvSeriesId' => $movieShowId
-));
-
-$stmt4 = $pdo->prepare('SELECT * FROM tvSeries WHERE tvSeriesID=:tvSeriesId');
-$stmt4->execute(array(
-    ':tvSeriesId' => $movieShowId
-));
-
-$movieShowArr = array();
-
-// add all movies with genre dataset to $fullMoviesArray
-while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
-    $movieShowArr[] = $dbResults;
-}
-
-// add all movies without genre dataset to $fullMoviesArray
-while ($dbResults = $stmt2->fetch(PDO::FETCH_ASSOC)) { 
-    $movieShowArr[] = $dbResults;
-}
-
-// add all tvSeries with genre dataset to $fullMoviesArray
-while ($dbResults = $stmt3->fetch(PDO::FETCH_ASSOC)) { 
-    $movieShowArr[] = $dbResults;
-}
-
-// add all tvSeries without genre dataset to $fullMoviesArray
-while ($dbResults = $stmt4->fetch(PDO::FETCH_ASSOC)) { 
-    $movieShowArr[] = $dbResults;
-}
-
-print_r($movieShowArr);
-
-// used for retrieving other information, such as director
-$movieShowIdForJoins = "";
-$stmt5;
-$movieShowArrWithDirector = array();
-
-// join tables of either movie or tvSeries for director retrieval
-if (array_key_exists("movieID", $movieShowArr[0])) {
-    $movieShowIdForJoins = $movieShowArr[0]['movieID'];
-    $stmt5 = $pdo->prepare('SELECT * FROM movies INNER JOIN directedBy ON directedBy.movieID=movies.movieID INNER JOIN directors ON directedBy.directorID=directors.directorID WHERE movies.movieID=:movieId');
-    $stmt5->execute(array(
-        ':movieId' => $movieShowIdForJoins
-    ));
-    
-} elseif (array_key_exists("tvSeriesID", $movieShowArr[0])) {
-    $movieShowIdForJoins = $movieShowArr[0]['tvSeriesID'];
-    $stmt5 = $pdo->prepare('SELECT * FROM tvSeries INNER JOIN directedBy ON directedBy.tvSeriesID=tvSeries.tvSeriesID INNER JOIN directors ON directedBy.directorID=directors.directorID WHERE tvSeries.tvSeriesID=:tvSeriesId');
-    $stmt5->execute(array(
-        ':tvSeriesId' => $movieShowIdForJoins
-    ));
-}
-
-// add all tvSeries with genre dataset to $fullMoviesArray
-while ($dbResults = $stmt5->fetch(PDO::FETCH_ASSOC)) { 
-    $movieShowArrWithDirector[] = $dbResults;
-}
-
-print_r($movieShowArrWithDirector);
-
-// add results to array to use in the movie/tv show details section
-while ($dbResults = $stmt5->fetch(PDO::FETCH_ASSOC)) { 
-    $movieShowArrWithDirector[] = $dbResults;
-}
-
-if (array_key_exists("movieID", $movieShowArr[0])) {
-    $imageLink = $movieShowArr[0]['movieImageLink'];
-} elseif (array_key_exists("tvSeriesID", $movieShowArr[0])) {
-    $imageLink = $movieShowArr[0]['tvSeriesImageLink'];
-}
+// get relative image link from the DB if it exists
+$imageLink = getImageLink($movieShowArr);
 
 ?>
 <!DOCTYPE html>
@@ -200,19 +99,13 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
             <section class="movie-header">
                 <div class="row justify-content-between">
                     <h1 class="colour-primary"><span class="search-name"><?php 
-                            if (array_key_exists("movieTitle", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['movieTitle']);
-                            } elseif (array_key_exists("tvSeriesName", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['tvSeriesName']);
-                            }
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieTitle', 'tvSeriesName');
                         ?></span></h1>
                     <div class="movie-stars">
-                        <h3 class="card-text-stars movie-stars-number colour-primary"><?php 
-                            if (array_key_exists("movieScore", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['movieScore']);
-                            } elseif (array_key_exists("tvSeriesScore", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['tvSeriesScore']);
-                            }
+                        <h3 class="card-text-stars movie-stars-number colour-primary"><?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieScore', 'tvSeriesScore');
                         ?></h3>
                         <i class="fas fa-star fa-2x"></i>
                     </div>
@@ -243,86 +136,75 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
 
                 </div> -->
                     <div class="movie-instance-body col-md-8 mb-3 mb-md-0">
-                        <h1 class="colour-primary"><?php 
-                            if (array_key_exists("movieTitle", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['movieTitle']);
-                            } elseif (array_key_exists("tvSeriesName", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['tvSeriesName']);
-                            }
+                        <h1 class="colour-primary"><?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieTitle', 'tvSeriesName');
                         ?></h1>
-                        <span class="wishlist-movie-duration colour-3"><?php 
-                            if (array_key_exists("movieDuration", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['movieDuration']);
-                            } elseif (array_key_exists("tvSeriesAverageDuration", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['tvSeriesAverageDuration']);
-                            }
+                        <span class="wishlist-movie-duration colour-3"><?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieDuration', 'tvSeriesAverageDuration');
                             ?>min</span>
                         <span class="colour-3"> | </span>
-                        <span class="wishlist-movie-genre colour-3"><?php 
-                            // if genre is found, echo it
-                            for($x=0; $x<count($movieShowArr); $x++) {
-                                if (array_key_exists("genreName", $movieShowArr[$x])) {
-                                    echo $movieShowArr[$x]['genreName'] . " ";
-                                }
-                            }
+                        <span class="wishlist-movie-genre colour-3"><?php
+                            // display genres if they exist for this movie/tvSeries in the DB
+                            displayGenres($movieShowArr);
                         ?></span>
                         <span class="colour-3"> | </span>
-                        <span class="wishlist-movie-release-date colour-3">Released: <?php 
-                            if (array_key_exists("movieReleaseDate", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['movieReleaseDate']);
-                            } elseif (array_key_exists("tvSeriesReleaseDate", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['tvSeriesReleaseDate']);
-                            }
+                        <span class="wishlist-movie-release-date colour-3">Released: <?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieReleaseDate', 'tvSeriesReleaseDate');
                         ?></span>
                         <br>
-                        <h4 style="display: inline;" class="colour-primary"><?php 
-                            if (array_key_exists("movieScore", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['movieScore']);
-                            } elseif (array_key_exists("tvSeriesScore", $movieShowArr[0])) {
-                                echo htmlentities($movieShowArr[0]['tvSeriesScore']);
-                            }
+                        <h4 style="display: inline;" class="colour-primary"><?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieScore', 'tvSeriesScore');
                         ?></h4>
                         <i class="fas fa-star fa-1x"></i>
                         <hr>
-                        <p class="colour-secondary"> On the day she celebrates her birthday, Jeanne, a young actress, is
-                            told by her
-                            mother her father is an Indian she once met on the banks on the river Ganges. From then on,
-                            Jeanne acts
-                            with singleness of purpose: she leaves the rehearsal of the the play "Sainte Jeanne des
-                            Abattoirs" she had
-                            wanted so much to be in, accepts a shameful role in a poor movie just for the money, buys an
-                            air ticket
-                            and flies to India, where she both hopes and fears to meet her biological father... </p>
+                        <p class="colour-secondary"><?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieDescription', 'tvSeriesDescription');
+                        ?></p>
                     </div>
                 </div>
 
                 <!-- movie details -->
                 <div class="row movie-details-section">
                     <div class="movie-details colour-primary  col-md-12 mb-3 mb-md-0">
-                        <p>Movie budget: <span class="movie-budget">80 mil USD</span> </p>
+                        <p>Budget: <span class="movie-budget"><?php 
+                            // echo budget for movie/tvSeries
+                            displayBudget($movieShowArr);
+                        ?>mln</span> </p>
                     </div>
                     <div class="movie-details colour-primary col-md-12 mb-3 mb-md-0">
                         <p>Director: <span class="movie-director"><?php 
-                            if (count($movieShowArrWithDirector) > 0 and array_key_exists("directorFirstName", $movieShowArrWithDirector[0])) {
-                                echo htmlentities($movieShowArrWithDirector[0]['directorFirstName']) . " " . htmlentities($movieShowArrWithDirector[0]['directorLastName']);
-                            }
+                            
+                            // echo director if exists for this movie/tvSeries
+                            displayDirector($movieShowArrWithDirector);
                         ?></span></p>
                     </div>
                     <div class=" movie-details colour-primary col-md-12 mb-3 mb-md-0">
-                        <p>Movie duration: <span class="movie-duration">2h 30mins</span></p>
+                        <p>Duration: <span class="movie-duration"><?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieDuration', 'tvSeriesAverageDuration');
+                            ?>min</span></p>
                     </div>
                     <div class="movie-details colour-primary  col-md-12 mb-3 mb-md-0">
-                        <p>Movie release date: <span class="movie-release-date"> 16 July 2010(UK)</span></p>
+                        <p>Release date: <span class="movie-release-date"> <?php
+                            // check whether it's a movie or tvSeries and display the appropriate key value
+                            displayEitherMovieOrSeriesDataItem($movieShowArr, 'movieReleaseDate', 'tvSeriesReleaseDate');
+                        ?></span></p>
                     </div>
                     <div class="movie-details colour-primary  col-md-12 mb-3 mb-md-0">
-                        <p>Genre: <span class="movie-genre" >  Action, Adventure, Sci-Fi</span></p>
+                        <p>Genre(s): <span class="movie-genre" ><?php 
+                            // display genres if they exist for this movie/tvSeries in the DB
+                            displayGenres($movieShowArr);
+                        ?></span></p>
                     </div>
-                    <div class="movie-details colour-primary movie-seasons col-md-12 mb-3 mb-md-0">
-                        <p>Seasons: <span class="movie-seasons-nr">4</span> </p>
-                    </div>
-                    <div class="movie-details colour-primary movie-episodes col-md-12 mb-3 mb-md-0">
-                        <p>Episodes: <span class="movies-episodes-nr" > 23</span> </p>
-                    </div>
+                    <?php
+                        // display Season and Episode numbers if it's a tvSeries
+                        echo displaySeriesSeasonAndEpisodeNumber($movieShowArr);
+                    ?>
                     
                 </div>
 
@@ -358,23 +240,11 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
                 </div>
                 <hr>
 
-
-
-
-
             </section>
-
-
-
-
 
         </div>
 
-
-
     </section>
-
-
     <!-- </section> -->
 
     <!-- </div> -->
