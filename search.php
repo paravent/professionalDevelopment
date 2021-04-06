@@ -21,8 +21,13 @@ $movie = $_GET['test'];
 $stmt = $pdo->prepare("SELECT * FROM movies WHERE movieTitle LIKE '%$movie%'");
 $stmt2 = $pdo->prepare("SELECT * FROM tvSeries WHERE tvSeriesName LIKE '%$movie%' ");
 
+$stmt3 = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$movie%') OR (actorLastName LIKE '$movie')");
+$stmt4 = $pdo->prepare("SELECT * FROM directors WHERE (directorFirstName LIKE '%$movie%') OR (directorLastName LIKE '$movie')");
+
 $stmt->execute();
 $stmt2->execute();
+$stmt3->execute();
+$stmt4->execute();
 
 // $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
 // when the homepage is loaded/reloaded
@@ -33,6 +38,7 @@ $mainPageMoviesArr = array();
 // full movies array that is used to extract random movies from
 $fullMoviesArray = array();
 $fulltvSeriesArray = array();
+$fullActorOrDirectorArray = array();
 
 // add all movies dataset to $fullMoviesArray
 while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
@@ -41,10 +47,21 @@ while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) {
 while ($dbResults2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
     $fulltvSeriesArray[] = $dbResults2;
 }
+
+while ($dbResults3 = $stmt3->fetch(PDO::FETCH_ASSOC)) {
+    $fullActorOrDirectorArray[] = $dbResults3;
+}
+
+while ($dbResults4 = $stmt4->fetch(PDO::FETCH_ASSOC)) {
+    $fullActorOrDirectorArray[] = $dbResults4;
+}
+
 // pick out random movies from the $fullMoviesArray dataset
 $resultArray = array_merge($fullMoviesArray, $fulltvSeriesArray );
 $fullArrayLength = count($resultArray); // used to generate random index within bounds of the array
 $numbersUsedArray = array(); // random indexes already used so movies don't duplicate on homepage
+
+$fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to loop through the array
 
 
  
@@ -137,12 +154,16 @@ $numbersUsedArray = array(); // random indexes already used so movies don't dupl
                 <h1 class="colour-primary">Search results for: <span class="search-name"><?php echo $movie; ?>
                             </span></h1>
                 
-                <p class="colour-primary">Related searches: <span class="search-results-number"> <?php echo htmlentities($fullArrayLength);  ?> </span></p>
+                <p class="colour-primary">Related searches: <span class="search-results-number"> <?php echo htmlentities($fullArrayLength + $fullActorOrDirectorArrayLength);  ?> </span></p>
                 <hr>
                 <div class="row">
                     <?php
                     for($x = 0; $x<$fullArrayLength; $x++) {
                         echo createMovieTvShowArtefact($resultArray[$x]);
+                    }
+
+                    for($x = 0; $x<$fullActorOrDirectorArrayLength; $x++) {
+                        echo createActorOrDirectorArtefact($fullActorOrDirectorArray[$x]);
                     }
 
                     ?>
