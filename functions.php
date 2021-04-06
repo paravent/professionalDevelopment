@@ -89,18 +89,18 @@ function createActorOrDirectorArtefact($actorOrDirector) {
                     }
 
                     if ($imageLink != "") {
-                        $imageLink = "img/movieTvShowImages" . $imageLink;
+                        $imageLink = "img/actorDirectorImages" . $imageLink;
                     } else {
-                        $imageLink = "img/movieImg.png";
+                        $imageLink = "img/personImg.png";
                     }
                 ?>
-            <img class="card-img-top" src="<?php echo $imageLink; ?>" onerror="this.src='img/movieImg.png'" alt="Card image cap">
+            <img class="card-img-top" src="<?php echo $imageLink; ?>" onerror="this.src='img/personImg.png'" alt="Card image cap">
             <div class="card-body">
-                <a href="actorDirector.php?actorOrDirectorID=<?php 
+                <a href="actorDirector.php?<?php 
                 if (array_key_exists("actorID", $actorOrDirector)) {
-                    echo htmlentities($actorOrDirector['actorID']);
+                    echo htmlentities("actorID=" . $actorOrDirector['actorID']);
                 } elseif (array_key_exists("directorID", $actorOrDirector)) {
-                    echo htmlentities($actorOrDirector['directorID']);
+                    echo htmlentities("directorID=" . $actorOrDirector['directorID']);
                 }
                 ?>">
             <article id="main-movie">
@@ -234,8 +234,43 @@ function getMoviesShowsWithDirector($pdo, $movieShowArr) {
 
 
 
-// get imageLink of a specific movie/tvSeries
-// $param1 : $movieTvShow array of data items for specific movie/tvSeries
+
+// get actor or director with a particular ID
+// $params: $pdo - database connection;
+// $params: $actorID - actor ID
+// $params : $directorID - director ID
+// $returns: $actorOrDirectorArr - array with a specific actor's or director's data items
+function getActorOrDirector($pdo, $actorID, $directorID) {
+    $stmt = $pdo->prepare("SELECT * FROM actors WHERE actorID=:actorId");
+    $stmt2 = $pdo->prepare("SELECT * FROM directors WHERE directorID=:directorId");
+    
+    $stmt->execute(array(
+        'actorId' => $actorID
+    ));
+    $stmt2->execute(array(
+        'directorId' => $directorID
+    ));
+    
+    $actorOrDirectorArr = array(); // array to store results for individual data items of a specific actor or director
+    
+    // add all movies with genre dataset to $fullMoviesArray
+    while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+        $actorOrDirectorArr[] = $dbResults;
+    }
+    
+    // add all movies without genre dataset to $fullMoviesArray
+    while ($dbResults = $stmt2->fetch(PDO::FETCH_ASSOC)) { 
+        $actorOrDirectorArr[] = $dbResults;
+    }
+
+    return $actorOrDirectorArr;
+}
+
+
+
+
+// get imageLink of a specific movie/tvSeries or actor/director
+// $param1 : $movieTvShow array of data items for specific movie/tvSeries or actor/director
 // returns: $imageLink relative link to an image taken from the DB
 function getImageLink($movieShowArr) {
     $imageLink = "";
@@ -243,6 +278,10 @@ function getImageLink($movieShowArr) {
         $imageLink = $movieShowArr[0]['movieImageLink'];
     } elseif (array_key_exists("tvSeriesImageLink", $movieShowArr[0])) {
         $imageLink = $movieShowArr[0]['tvSeriesImageLink'];
+    } elseif (array_key_exists("actorImageLink", $movieShowArr[0])) {
+        $imageLink = $movieShowArr[0]['actorImageLink'];
+    } elseif (array_key_exists("directorImageLink", $movieShowArr[0])) {
+        $imageLink = $movieShowArr[0]['directorImageLink'];
     }
 
     return $imageLink;
@@ -259,6 +298,32 @@ function displayEitherMovieOrSeriesDataItem($movieShowArr, $movieKey, $tvSeriesK
         echo htmlentities($movieShowArr[0][$movieKey]);
     } elseif (array_key_exists($tvSeriesKey, $movieShowArr[0])) {
         echo htmlentities($movieShowArr[0][$tvSeriesKey]);
+    }
+}
+
+
+
+// check whether it's an actor or director and display the appropriate key value
+// $param1 : $actorDirectorArr actor or director data items array
+// $param2 : $actorKey key to display if it's an actor
+// $param3 : $directorKey key to display if it's a director
+function displayEitherActorOrDirectorDataItem($actorDirectorArr, $actorKey, $directorKey) {
+    if (array_key_exists($actorKey, $actorDirectorArr[0])) {
+        echo htmlentities($actorDirectorArr[0][$actorKey]);
+    } elseif (array_key_exists($directorKey, $actorDirectorArr[0])) {
+        echo htmlentities($actorDirectorArr[0][$directorKey]);
+    }
+}
+
+// check whether it's an actor or director and display the appropriate description (either actor BIO or director OSCARS WON)
+// $param1 : $actorDirectorArr actor or director data items array
+// $param2 : $actorKey key to display if it's an actor
+// $param3 : $directorKey key to display if it's a director
+function displayEitherActorOrDirectorDescription($actorDirectorArr, $actorKey, $directorKey) {
+    if (array_key_exists($actorKey, $actorDirectorArr[0])) {
+        echo htmlentities($actorDirectorArr[0][$actorKey]);
+    } elseif (array_key_exists($directorKey, $actorDirectorArr[0])) {
+        echo htmlentities("Oscars Won: " . $actorDirectorArr[0][$directorKey]);
     }
 }
 

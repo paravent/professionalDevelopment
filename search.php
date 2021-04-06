@@ -42,8 +42,8 @@ echo $genre;
 $stmt = $pdo->prepare("SELECT * FROM movies WHERE movieTitle LIKE '%$movie%'");
 $stmt2 = $pdo->prepare("SELECT * FROM tvSeries WHERE tvSeriesName LIKE '%$movie%' ");
 
-$stmt3 = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$movie%') OR (actorLastName LIKE '$movie')");
-$stmt4 = $pdo->prepare("SELECT * FROM directors WHERE (directorFirstName LIKE '%$movie%') OR (directorLastName LIKE '$movie')");
+$stmt3 = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$movie%') OR (actorLastName LIKE '%$movie%')");
+$stmt4 = $pdo->prepare("SELECT * FROM directors WHERE (directorFirstName LIKE '%$movie%') OR (directorLastName LIKE '%$movie%')");
 $stmt->execute();
 $stmt2->execute();
 $stmt3->execute();
