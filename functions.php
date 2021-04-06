@@ -1,7 +1,7 @@
 <?php
 
-// get HTML for movie/tvSeries item to display on index page
-// $param1 : $movieTvShow array of movies and tvSeries
+// get HTML for movie/tvSeries item to display on index & search page
+// $param1 : $movieTvShow array of individual movie or tvSeries data items
 // returns : HTML for individual movie/tvSeries item to display on index.php
 function createMovieTvShowArtefact($movieTvShow) {
     ob_start();
@@ -67,6 +67,78 @@ function createMovieTvShowArtefact($movieTvShow) {
     <?php
     return ob_get_clean();
 }
+
+
+
+
+// get HTML for actor or director to display on search page
+// $param1 : $actorOrDirector array of data items for individual actor or director
+// returns : HTML for individual actor or director to display on search page
+function createActorOrDirectorArtefact($actorOrDirector) {
+    ob_start();
+    ?>
+    <div class="col-md-3 mb-3 mb-md-0 card-container">
+        <div class="card h-100">
+                <?php 
+                    // generate image link for use on line 238 just below
+                    $imageLink = "";
+                    if (array_key_exists("actorImageLink", $actorOrDirector)) {
+                        $imageLink = $actorOrDirector['actorImageLink'];
+                    } elseif (array_key_exists("directorImageLink", $actorOrDirector)) {
+                        $imageLink = $actorOrDirector['directorImageLink'];
+                    }
+
+                    if ($imageLink != "") {
+                        $imageLink = "img/movieTvShowImages" . $imageLink;
+                    } else {
+                        $imageLink = "img/movieImg.png";
+                    }
+                ?>
+            <img class="card-img-top" src="<?php echo $imageLink; ?>" onerror="this.src='img/movieImg.png'" alt="Card image cap">
+            <div class="card-body">
+                <a href="actorDirector.php?actorOrDirectorID=<?php 
+                if (array_key_exists("actorID", $actorOrDirector)) {
+                    echo htmlentities($actorOrDirector['actorID']);
+                } elseif (array_key_exists("directorID", $actorOrDirector)) {
+                    echo htmlentities($actorOrDirector['directorID']);
+                }
+                ?>">
+            <article id="main-movie">
+            
+            <h2><?php 
+                if (array_key_exists("actorFirstName", $actorOrDirector)) {
+                    echo htmlentities($actorOrDirector['actorFirstName']) . " ";
+                    echo htmlentities($actorOrDirector['actorLastName']);
+                } elseif (array_key_exists("directorFirstName", $actorOrDirector)) {
+                    echo htmlentities($actorOrDirector['directorFirstName']) . " ";
+                    echo htmlentities($actorOrDirector['directorLastName']);
+                } ?>
+            </h2>
+            <p><?php 
+                if (array_key_exists("actorFirstName", $actorOrDirector)) {
+                    echo htmlentities("Actor");
+                } elseif (array_key_exists("directorFirstName", $actorOrDirector)) {
+                    echo htmlentities("Director");
+                } 
+                ?>
+                <!-- <i class="fas fa-star"></i> -->
+            </p>
+            <p><?php 
+                // if (array_key_exists("movieDescription", $movieTvShow)) {
+                //     echo htmlentities($movieTvShow['movieDescription']);
+                // } elseif (array_key_exists("tvSeriesDescription", $movieTvShow)) {
+                //     echo htmlentities($movieTvShow['tvSeriesDescription']);
+                // }
+                ?>
+            </p>
+            </a>
+            </div>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
 
 
 
