@@ -364,13 +364,7 @@ if (array_key_exists("movieID", $movieShowArr[0])) {
 
             </section>
 
-
-
-
-
         </div>
-
-
 
     </section>
 
