@@ -32,6 +32,20 @@ if (isset($_GET['genre'])){
     $genre = $_GET['genre'];
 }
 
+// used for searching actors and directors
+// lets user type in firstName and lastName, just firstName, or just lastName
+$nameSplitArr = explode(" ", $movie);
+$firstName = "";
+$lastName = "";
+
+if (count($nameSplitArr) > 0) {
+    $firstName = $nameSplitArr[0];
+}
+if (count($nameSplitArr) > 1) {
+    $lastName = $nameSplitArr[1];
+}
+
+
 
 
 echo $budget;
@@ -42,8 +56,35 @@ echo $genre;
 $stmt = $pdo->prepare("SELECT * FROM movies WHERE movieTitle LIKE '%$movie%'");
 $stmt2 = $pdo->prepare("SELECT * FROM tvSeries WHERE tvSeriesName LIKE '%$movie%' ");
 
-$stmt3 = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$movie%') OR (actorLastName LIKE '%$movie%')");
-$stmt4 = $pdo->prepare("SELECT * FROM directors WHERE (directorFirstName LIKE '%$movie%') OR (directorLastName LIKE '%$movie%')");
+// $stmt3 = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$firstName%' OR actorLastName LIKE '%$lastName%')");
+// $stmt4 = $pdo->prepare("SELECT * FROM directors WHERE (directorFirstName LIKE '%$firstName%' OR directorLastName LIKE '%$lastName%')");
+
+$actorQuery = "SELECT * FROM actors WHERE";
+$directorQuery = "SELECT * FROM directors WHERE";
+
+// first word in search
+if ($firstName != "") {
+    // check first name
+    $actorQuery = $actorQuery .  " (actorFirstName LIKE '%$firstName%')";
+    $directorQuery = $directorQuery . " (directorFirstName LIKE '%$firstName%')";
+    // check whether first word in search is the last name
+    $actorQuery = $actorQuery .  " OR (actorLastName LIKE '%$firstName%')";
+    $directorQuery = $directorQuery . " OR (directorLastName LIKE '%$firstName%')";
+}
+
+// second word in search
+if ($lastName != "") {
+    $actorQuery = $actorQuery .  " OR (actorLastName LIKE '%$lastName%')";
+    $directorQuery = $directorQuery . " OR (directorLastName LIKE '%$lastName%')";
+    // check if last name entered is actually the first name
+    $actorQuery = $actorQuery .  " OR (actorFirstName LIKE '%$lastName%')";
+    $directorQuery = $directorQuery . " OR (directorFirstName LIKE '%$lastName%')";
+}
+
+$stmt3 = $pdo->prepare($actorQuery);
+$stmt4 = $pdo->prepare($directorQuery);
+
+
 $stmt->execute();
 $stmt2->execute();
 $stmt3->execute();
@@ -74,12 +115,6 @@ while ($dbResults2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
     $fulltvSeriesArray[] = $dbResults2;
 }
 
-
-
-
-
-//build a query based on ifElse statements
-
 while ($dbResults3 = $stmt3->fetch(PDO::FETCH_ASSOC)) {
     $fullActorOrDirectorArray[] = $dbResults3;
 }
@@ -87,6 +122,11 @@ while ($dbResults3 = $stmt3->fetch(PDO::FETCH_ASSOC)) {
 while ($dbResults4 = $stmt4->fetch(PDO::FETCH_ASSOC)) {
     $fullActorOrDirectorArray[] = $dbResults4;
 }
+
+
+//build a query based on ifElse statements
+
+
 // pick out random movies from the $fullMoviesArray dataset
 $resultArray = array_merge($fullMoviesArray, $fulltvSeriesArray );
 if (isset($_GET['Filter'])){
