@@ -38,9 +38,12 @@ $nameSplitArr = explode(" ", $movie);
 $firstName = "";
 $lastName = "";
 
+// if there's at least 1 word
 if (count($nameSplitArr) > 0) {
     $firstName = $nameSplitArr[0];
 }
+
+// if there's at least 2 words
 if (count($nameSplitArr) > 1) {
     $lastName = $nameSplitArr[1];
 }
@@ -413,14 +416,14 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
                         <!-- </div> -->
                     </div>
                     <!-- wishlist-instance-body -->
-                    <div class="wishlist-instance-body col-md-8 mb-3 mb-md-0">
+                    <!-- <div class="wishlist-instance-body col-md-8 mb-3 mb-md-0">
 
-                        <button type="button" class="btn colour-primary align-self-center btn-remove-wishlist">
+                        <button type="button" class="btn colour-primary align-self-center btn-remove-wishlist"> -->
                             <!-- <i class="fas fa-minus fa-2x colour-primary"></i>  -->
-                            Remove from wishlist
+                            <!-- Remove from wishlist
                         </button>
 
-                    </div>
+                    </div> -->
                 </div>
                 <hr>
 
