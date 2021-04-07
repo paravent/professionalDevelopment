@@ -1,18 +1,24 @@
 
-<?php 
+<?php
 include "pdo.php";
 require_once "functions.php";
 session_start();
-$servername = "localhost"; 
-$username = "root"; 
-$password = ""; 
-$tableName = "profdev"; 
+$servername = "localhost";
+$username = "root";
+$password = "";
+$tableName = "profdev";
 $mysqli = new mysqli($servername, $username, $password, $tableName);
 
 
 // Check connection
 if ($mysqli->connect_error) {
-  die();
+    die();
+}
+
+$movie = "";
+if (isset($_GET['test'])) {
+    $movie = $_GET['test'];
+    $_SESSION["searchQUERY"] = $movie;
 }
 
 $movie = "";
@@ -20,7 +26,6 @@ if (isset($_GET['test'])) {
     $movie = $_GET['test'];
 }
 
-$_SESSION["searchQUERY"] = $movie;
 
 if (isset($_GET['budget'])){
     $budget = $_GET['budget'];
@@ -119,12 +124,15 @@ if ($movie != "") {
     $fullActorOrDirectorArray = array();
 
     // add all movies dataset to $fullMoviesArray
+
     while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+
         $fullMoviesArray[] = $dbResults;
     }
     while ($dbResults2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
         $fulltvSeriesArray[] = $dbResults2;
     }
+
 
     while ($dbResults3 = $stmt3->fetch(PDO::FETCH_ASSOC)) {
         $fullActorOrDirectorArray[] = $dbResults3;
@@ -144,19 +152,21 @@ if ($movie != "") {
 // pick out random movies from the $fullMoviesArray dataset
 $resultArray = array_merge($fullMoviesArray, $fulltvSeriesArray );
 if (isset($_GET['Filter'])){
-    $filterSTMT = $pdo->prepare("SELECT * FROM movies WHERE  movieTitle LIKE '%$movie%'
+    $testing = $_SESSION["searchQUERY"];
+    $filterSTMT = $pdo->prepare("SELECT * FROM movies WHERE  movieTitle LIKE '%$testing%'
                                      AND
                                      movieRevenue > '%$revenue%' 
                                      AND
                                      movieBudget > '%$budget%'");
 
+    echo $_SESSION["searchQUERY"];
     $filterSTMT->execute();
     $filteredArr = array();
     while ($dbResults3 = $filterSTMT->fetch(PDO::FETCH_ASSOC)) {
         $finalResultArr[] = $dbResults3;
     }
-    $resultArray2 = array_merge($finalResultArr, $fullMoviesArray, $fulltvSeriesArray );
-    $fullArrayLength = count($resultArray2); // used to generate random index within bounds of the array
+    $resultArray = array_merge($finalResultArr, $fullMoviesArray, $fulltvSeriesArray );
+    $fullArrayLength = count($resultArray); // used to generate random index within bounds of the array
 }
 
 else {
@@ -170,7 +180,7 @@ $numbersUsedArray = array(); // random indexes already used so movies don't dupl
 $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to loop through the array
 
 
- 
+
 
 ?>
 
@@ -189,76 +199,77 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
     <!-- Google fonts-->
     <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
     <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet" />
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet" />
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="css/style.css" rel="stylesheet" />
     <!-- bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 </head>
 
 <body id="page-top">
 
 
-    <!-- Navigation-->
-    <nav class="navbar navbar-expand-lg navbar-light ">
-        <a class="navbar-brand" href="#">
-            <img src="img/iMovieIcon.png" style="width: 50px;" alt="">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-light ">
+    <a class="navbar-brand" href="#">
+        <img src="img/iMovieIcon.png" style="width: 50px;" alt="">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link colour-primary" href="index.php">Home</a>
-                    
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link colour-primary" href="wishlist.html">Wishlist</a>
-                </li>
-                <li class="nav-item">
-                    <?php
-                        if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
-                        
-                            echo " <a class=\"nav-link colour-primary\"  </a> ";
-                            echo htmlspecialchars($_SESSION["username"]);
-                            echo " <a class=\"nav-link colour-primary\" href=\"logout.php\">Logout </a> ";
-                           
-                
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link colour-primary" href="index.php">Home</a>
+
+            </li>
+            <li class="nav-item">
+                <a class="nav-link colour-primary" href="wishlist.html">Wishlist</a>
+            </li>
+            <li class="nav-item">
+                <?php
+                if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
+
+                    echo " <a class=\"nav-link colour-primary\"  </a> ";
+                    echo htmlspecialchars($_SESSION["username"]);
+                    echo " <a class=\"nav-link colour-primary\" href=\"logout.php\">Logout </a> ";
+
+
                 }
                 else {
                     echo " <a class=\"nav-link colour-primary\" href=\"login.php\">Login </a> ";
                 }
                 ?>
-                </li>
-            </ul>
-            <!-- <form class="form-inline my-2 my-lg-0"> -->
-            <form class="form-inline" action="search.php" method="get">
-                    <input class="form-control mr-sm-2"  type="text" name="test"  placeholder="Search" aria-label="Search">
-                    <button class="search btn-search btn my-2 my-sm-0" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-        </div>
-    </nav>
+            </li>
+        </ul>
+        <!-- <form class="form-inline my-2 my-lg-0"> -->
+        <form class="form-inline" action="search.php" method="get">
+            <input class="form-control mr-sm-2"  type="text" name="test"  placeholder="Search" aria-label="Search">
+            <button class="search btn-search btn my-2 my-sm-0" type="submit">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+</nav>
 
 
 
 
 
 
-    <!-- container -->
-    <section class="search">
+<!-- container -->
+<section class="search">
 
-        <div class="container">
-            <!-- search header -->
-            <section class="search-header">
-                <h1 class="colour-primary">Search results for: <span class="search-name"><?php echo $movie; ?>
+    <div class="container">
+        <!-- search header -->
+        <section class="search-header">
+            <h1 class="colour-primary">Search results for: <span class="search-name"><?php echo $movie; ?>
                             </span></h1>
+
                 <form action="" method="get">
                     <div class="row justify-content-between">
 
@@ -415,42 +426,39 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
                             echo createActorOrDirectorArtefact($fullActorOrDirectorArray[$x]);
                         }
                     }
-                    
 
-                    ?>
+                ?>
 
+            </div>
+        </section>
+        <!-- wishlist body -->
+        <section class="search-body">
+            <!-- row / movie instance-->
+            <div class="row justify-content-around">
+                <!-- wishlist-instance-img -->
+                <div class="align-self-center wishlist-instance-image col-md-3 mb-3 mb-md-0 card-container">
+                    <!-- <div class="card h-100"> -->
+
+                    <!-- </div> -->
                 </div>
-            </section>
-            <!-- wishlist body -->
-            <section class="search-body">
-                <!-- row / movie instance-->
-                <div class="row justify-content-around">
-                    <!-- wishlist-instance-img -->
-                    <div class="align-self-center wishlist-instance-image col-md-3 mb-3 mb-md-0 card-container">
-                        <!-- <div class="card h-100"> -->
-
-                        <!-- </div> -->
-                    </div>
-                    <!-- wishlist-instance-body -->
-                    <!-- <div class="wishlist-instance-body col-md-8 mb-3 mb-md-0">
-
-                        <button type="button" class="btn colour-primary align-self-center btn-remove-wishlist"> -->
-                            <!-- <i class="fas fa-minus fa-2x colour-primary"></i>  -->
-                            <!-- Remove from wishlist
-                        </button>
-
-                    </div> -->
-                </div>
-                <hr>
+                <!-- wishlist-instance-body -->
+                <!-- <div class="wishlist-instance-body col-md-8 mb-3 mb-md-0">
+                    <button type="button" class="btn colour-primary align-self-center btn-remove-wishlist"> -->
+                <!-- <i class="fas fa-minus fa-2x colour-primary"></i>  -->
+                <!-- Remove from wishlist
+            </button>
+        </div> -->
+            </div>
+            <hr>
 
 
-            </section>
+        </section>
 
-        </div>
-
-    </section>
     </div>
-    </section>
+
+</section>
+</div>
+</section>
 
 
 
@@ -459,47 +467,60 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
 
 
 
-    <!-- Footer-->
-    <footer class="footer bg-black small text-center text-white-50">
-        <div class="container">
-            <div class="social d-flex justify-content-center">
-                <a class="mx-2" href="#!"><i class="fab fa-twitter fa-2x colour-primary"></i></a>
-                <a class="mx-2" href="#!"><i class="fab fa-facebook-f fa-2x colour-primary"></i></a>
-                <a class="mx-2" href="#!"><i class="fab fa-instagram fa-2x colour-primary"></i></a>
-                <a class="mx-2" href="#!"><i class="fab fa-pinterest fa-2x colour-primary"></i></a>
-            </div>
-
-
-            <div class="footer-options row justify-content-md-center">
-                <div class="col-sm-2">
-                    Home
-                </div>
-                <div class="col-sm-2">
-                    Wishlist
-                </div>
-                <div class="col-sm-2">
-                    Login
-                </div>
-            </div>
-
-
-
-            <p>Website by Andrei Frandes</p>
+<!-- Footer-->
+<footer class="footer bg-black small text-center text-white-50">
+    <div class="container">
+        <div class="social d-flex justify-content-center">
+            <a class="mx-2" href="#!"><i class="fab fa-twitter fa-2x colour-primary"></i></a>
+            <a class="mx-2" href="#!"><i class="fab fa-facebook-f fa-2x colour-primary"></i></a>
+            <a class="mx-2" href="#!"><i class="fab fa-instagram fa-2x colour-primary"></i></a>
+            <a class="mx-2" href="#!"><i class="fab fa-pinterest fa-2x colour-primary"></i></a>
         </div>
-    </footer>
-    <!-- Bootstrap core JS-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Third party plugin JS-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
 
-    <script>
-        // controlling the carousel
-        $('.carousel').carousel({
-            interval: 3000
-        }) 
-    </script>
+
+        <div class="footer-options row justify-content-md-center">
+            <div class="col-sm-2">
+                Home
+            </div>
+            <div class="col-sm-2">
+                Wishlist
+            </div>
+            <div class="col-sm-2">
+                Login
+            </div>
+        </div>
+
+
+
+        <p>Website by Andrei Frandes</p>
+    </div>
+</footer>
+<!-- Bootstrap core JS-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Third party plugin JS-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+
+<script>
+    // controlling the carousel
+    $('.carousel').carousel({
+        interval: 3000
+    })
+</script>
 
 </body>
 
 </html>
+© 2021 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Loading complete
