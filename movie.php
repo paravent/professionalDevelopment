@@ -73,7 +73,7 @@ $imageLink = getImageLink($movieShowArr);
                     <a class="nav-link colour-primary" href="wishlist.html">Wishlist</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link colour-primary" href="login.html">Login</a>
+                    <a class="nav-link colour-primary" href="login.php">Login</a>
                 </li>
             </ul>
             <!-- <form class="form-inline my-2 my-lg-0"> -->
