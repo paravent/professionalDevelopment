@@ -15,8 +15,11 @@ if ($mysqli->connect_error) {
   die();
 }
 
+$movie = "";
+if (isset($_GET['test'])) {
+    $movie = $_GET['test'];
+}
 
-$movie = $_GET['test'];
 $_SESSION["searchQUERY"] = $movie;
 
 if (isset($_GET['budget'])){
@@ -56,75 +59,83 @@ echo $revenue;
 echo $year;
 echo $genre;
 
-$stmt = $pdo->prepare("SELECT * FROM movies WHERE movieTitle LIKE '%$movie%'");
-$stmt2 = $pdo->prepare("SELECT * FROM tvSeries WHERE tvSeriesName LIKE '%$movie%' ");
-
-// $stmt3 = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$firstName%' OR actorLastName LIKE '%$lastName%')");
-// $stmt4 = $pdo->prepare("SELECT * FROM directors WHERE (directorFirstName LIKE '%$firstName%' OR directorLastName LIKE '%$lastName%')");
-
-$actorQuery = "SELECT * FROM actors WHERE";
-$directorQuery = "SELECT * FROM directors WHERE";
-
-// first word in search
-if ($firstName != "") {
-    // check first name
-    $actorQuery = $actorQuery .  " (actorFirstName LIKE '%$firstName%')";
-    $directorQuery = $directorQuery . " (directorFirstName LIKE '%$firstName%')";
-    // check whether first word in search is the last name
-    $actorQuery = $actorQuery .  " OR (actorLastName LIKE '%$firstName%')";
-    $directorQuery = $directorQuery . " OR (directorLastName LIKE '%$firstName%')";
-}
-
-// second word in search
-if ($lastName != "") {
-    $actorQuery = $actorQuery .  " OR (actorLastName LIKE '%$lastName%')";
-    $directorQuery = $directorQuery . " OR (directorLastName LIKE '%$lastName%')";
-    // check if last name entered is actually the first name
-    $actorQuery = $actorQuery .  " OR (actorFirstName LIKE '%$lastName%')";
-    $directorQuery = $directorQuery . " OR (directorFirstName LIKE '%$lastName%')";
-}
-
-$stmt3 = $pdo->prepare($actorQuery);
-$stmt4 = $pdo->prepare($directorQuery);
-
-
-$stmt->execute();
-$stmt2->execute();
-$stmt3->execute();
-$stmt4->execute();
-
-
-
-// $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
-// when the homepage is loaded/reloaded
-
-// array of random movies that is used in the homepage
-
-
-
-
-$mainPageMoviesArr = array();
-
-// full movies array that is used to extract random movies from
 $fullMoviesArray = array();
 $fulltvSeriesArray = array();
 $fullActorOrDirectorArray = array();
 
-// add all movies dataset to $fullMoviesArray
-while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
-    $fullMoviesArray[] = $dbResults;
-}
-while ($dbResults2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
-    $fulltvSeriesArray[] = $dbResults2;
+if ($movie != "") {
+    $stmt = $pdo->prepare("SELECT * FROM movies WHERE movieTitle LIKE '%$movie%'");
+    $stmt2 = $pdo->prepare("SELECT * FROM tvSeries WHERE tvSeriesName LIKE '%$movie%' ");
+
+    // $stmt3 = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$firstName%' OR actorLastName LIKE '%$lastName%')");
+    // $stmt4 = $pdo->prepare("SELECT * FROM directors WHERE (directorFirstName LIKE '%$firstName%' OR directorLastName LIKE '%$lastName%')");
+
+    $actorQuery = "SELECT * FROM actors WHERE";
+    $directorQuery = "SELECT * FROM directors WHERE";
+
+    // first word in search
+    if ($firstName != "") {
+        // check first name
+        $actorQuery = $actorQuery .  " (actorFirstName LIKE '%$firstName%')";
+        $directorQuery = $directorQuery . " (directorFirstName LIKE '%$firstName%')";
+        // check whether first word in search is the last name
+        $actorQuery = $actorQuery .  " OR (actorLastName LIKE '%$firstName%')";
+        $directorQuery = $directorQuery . " OR (directorLastName LIKE '%$firstName%')";
+    }
+
+    // second word in search
+    if ($lastName != "") {
+        $actorQuery = $actorQuery .  " OR (actorLastName LIKE '%$lastName%')";
+        $directorQuery = $directorQuery . " OR (directorLastName LIKE '%$lastName%')";
+        // check if last name entered is actually the first name
+        $actorQuery = $actorQuery .  " OR (actorFirstName LIKE '%$lastName%')";
+        $directorQuery = $directorQuery . " OR (directorFirstName LIKE '%$lastName%')";
+    }
+
+    $stmt3 = $pdo->prepare($actorQuery);
+    $stmt4 = $pdo->prepare($directorQuery);
+
+
+    $stmt->execute();
+    $stmt2->execute();
+    $stmt3->execute();
+    $stmt4->execute();
+
+
+
+    // $mainPageMoviesArr stores the movies used throughout the homepage, and is randomly generated from the dataset
+    // when the homepage is loaded/reloaded
+
+    // array of random movies that is used in the homepage
+
+
+
+
+    $mainPageMoviesArr = array();
+
+    // full movies array that is used to extract random movies from
+    $fullMoviesArray = array();
+    $fulltvSeriesArray = array();
+    $fullActorOrDirectorArray = array();
+
+    // add all movies dataset to $fullMoviesArray
+    while ($dbResults = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+        $fullMoviesArray[] = $dbResults;
+    }
+    while ($dbResults2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
+        $fulltvSeriesArray[] = $dbResults2;
+    }
+
+    while ($dbResults3 = $stmt3->fetch(PDO::FETCH_ASSOC)) {
+        $fullActorOrDirectorArray[] = $dbResults3;
+    }
+
+    while ($dbResults4 = $stmt4->fetch(PDO::FETCH_ASSOC)) {
+        $fullActorOrDirectorArray[] = $dbResults4;
+    }
 }
 
-while ($dbResults3 = $stmt3->fetch(PDO::FETCH_ASSOC)) {
-    $fullActorOrDirectorArray[] = $dbResults3;
-}
 
-while ($dbResults4 = $stmt4->fetch(PDO::FETCH_ASSOC)) {
-    $fullActorOrDirectorArray[] = $dbResults4;
-}
 
 
 //build a query based on ifElse statements
@@ -393,13 +404,18 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
                 <hr>
                 <div class="row">
                     <?php
-                    for($x = 0; $x<$fullArrayLength; $x++) {
-                        echo createMovieTvShowArtefact($resultArray[$x]);
+                    if (count($resultArray) > 0) {
+                        for($x = 0; $x<$fullArrayLength; $x++) {
+                            echo createMovieTvShowArtefact($resultArray[$x]);
+                        }
                     }
-
-                    for($x = 0; $x<$fullActorOrDirectorArrayLength; $x++) {
-                        echo createActorOrDirectorArtefact($fullActorOrDirectorArray[$x]);
+                    
+                    if (count($fullActorOrDirectorArray) > 0) {
+                        for($x = 0; $x<$fullActorOrDirectorArrayLength; $x++) {
+                            echo createActorOrDirectorArtefact($fullActorOrDirectorArray[$x]);
+                        }
                     }
+                    
 
                     ?>
 
