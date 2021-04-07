@@ -3,9 +3,25 @@
 require_once "pdo.php";
 require_once "functions.php";
 
-//$actorOrDirector = $_GET['test'];
+if (!isset($_GET['actorID']) and !isset($_GET['directorID'])) {
+    die("ID parameter missing");
+}
+$actorID = "";
+$directorID = "";
 
-//$stmt = $pdo->prepare("SELECT * FROM actors WHERE (actorFirstName LIKE '%$actorOrDirector%') OR (actorLastName LIKE '$actorOrDirector')");
+if (isset($_GET['actorID'])) {
+    $actorID = $_GET['actorID'];
+}
+
+if (isset($_GET['directorID'])) {
+    $directorID = $_GET['directorID'];
+}
+
+$actorOrDirectorArr = getActorOrDirector($pdo, $actorID, $directorID);
+
+$imageLink = getImageLink($actorOrDirectorArr);
+
+
 
 ?>
 
@@ -49,18 +65,18 @@ require_once "functions.php";
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link colour-primary" href="index.html">Home</a>
+                    <a class="nav-link colour-primary" href="index.php">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link colour-primary" href="wishlist.html">Wishlist</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link colour-primary" href="login.html">Login</a>
+                    <a class="nav-link colour-primary" href="login.php">Login</a>
                 </li>
             </ul>
             <!-- <form class="form-inline my-2 my-lg-0"> -->
-            <form class="form-inline ">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <form class="form-inline" action="search.php" method="get">
+                <input class="form-control mr-sm-2"  type="text" name="test"  placeholder="Search" aria-label="Search">
                 <button class="search btn-search btn my-2 my-sm-0" type="submit">
                     <i class="fas fa-search"></i>
                 </button>
@@ -75,7 +91,10 @@ require_once "functions.php";
             <!-- movie header -->
             <section class="movie-header">
                 <div class="row justify-content-between">
-                    <h1 class="colour-primary"><span class="search-name">Cilian murphy</span></h1>
+                    <h1 class="colour-primary"><span class="search-name"><?php
+                        echo displayEitherActorOrDirectorDataItem($actorOrDirectorArr, "actorFirstName", "directorFirstName") . " ";
+                        echo displayEitherActorOrDirectorDataItem($actorOrDirectorArr, "actorLastName", "directorLastName");
+                    ?></span></h1>
                 </div>
                 <hr>
             </section>
@@ -87,41 +106,48 @@ require_once "functions.php";
                 <div class="row movie-row justify-content-around">
                     <div class="align-self-center movie-instance-image col-md-3 mb-3 mb-md-0 card-container">
                         <!-- <div class="card h-100"> -->
-                        <img class="card-img-top" src="img/interstellar.png" alt="Card image cap">
+                        <?php
+                            // add image dynamically, and if it doesn't exist add dummy movieImg.png
+                            if ($imageLink != "") {
+                                echo '<img class="card-img-top" src="img/actorDirectorImages' . $imageLink .  '" onerror="this.src=\'img/personImg.png\'" alt="Card image cap">';
+                            } else {
+                                echo '<img class="card-img-top" src="img/personImg.png" alt="poster">';
+                            }
+                            ?>
                         <!-- </div> -->
                     </div>
                     <!-- <div class="movie-instance-body">
 
                 </div> -->
                     <div class="movie-instance-body col-md-8 mb-3 mb-md-0">
-                        <h3 class="colour-primary">Actor</h3>
+                        <h3 class="colour-primary"><?php
+                        echo displayEitherActorOrDirectorDataItem($actorOrDirectorArr, "actorFirstName", "directorFirstName") . " ";
+                        echo displayEitherActorOrDirectorDataItem($actorOrDirectorArr, "actorLastName", "directorLastName");
+                    ?></h3>
                         <hr>
                         <p class="colour-secondary"> 
-                            Cilian muprhy description On the day she celebrates her birthday, Jeanne, a young actress, is
-                            told by her
-                            mother her father is an Indian she once met on the banks on the river Ganges. From then on,
-                            Jeanne acts
-                            with singleness of purpose: she leaves the rehearsal of the the play "Sainte Jeanne des
-                            Abattoirs" she had
-                            wanted so much to be in, accepts a shameful role in a poor movie just for the money, buys an
-                            air ticket
-                            and flies to India, where she both hopes and fears to meet her biological father... </p>
+                        <?php
+                        echo displayEitherActorOrDirectorDescription($actorOrDirectorArr, "actorBio", "directorOscarsWon");
+                    ?> </p>
                     </div>
                 </div>
 
                 <!-- movie details -->
                 <div class="row movie-details-section">
                     <div class="movie-details actor-details colour-primary movie-budget col-md-12 mb-3 mb-md-0">
-                        <p>Date of birth: <span class="actor-date-of-birth"> 03/03/1960</span> </p>
+                        <p>Date of birth: <span class="actor-date-of-birth"><?php 
+                            echo displayEitherActorOrDirectorDataItem($actorOrDirectorArr, "actorDateOfBirth", "directorDateOfBirth");
+                        ?></span> </p>
                     </div>
                     <div class="movie-details actor-details colour-primary movie-budget col-md-12 mb-3 mb-md-0">
-                        <p>Place of birth: <span class="actor-place-of-birth"> Colorado</span> </p>
+                        <p>Place of birth: <span class="actor-place-of-birth"><?php 
+                            echo displayEitherActorOrDirectorDataItem($actorOrDirectorArr, "actorPlaceOfBirth", "directorPlaceOfBirth");
+                        ?></span> </p>
                     </div>
                     <div class="movie-details actor-details colour-primary movie-budget col-md-12 mb-3 mb-md-0">
-                        <p>Oscars won: <span class="actor-oscars-won"> 1</span> </p>
-                    </div>
-                    <div class="movie-details actor-details colour-primary movie-budget col-md-12 mb-3 mb-md-0">
-                        <p>Known for: <span class="actor-known-for"> 03/03/1960</span> </p>
+                        <p>Known for: <span class="actor-known-for"><?php 
+                            echo displayEitherActorOrDirectorDataItem($actorOrDirectorArr, "actorsKnownFor", "directorKnownFor");
+                        ?></span> </p>
                     </div>
                     
                 </div>
