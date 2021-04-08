@@ -15,6 +15,7 @@ if ($mysqli->connect_error) {
     die();
 }
 
+
 $movie = "";
 if (isset($_GET['test'])) {
     $movie = $_GET['test'];
@@ -142,26 +143,46 @@ if (isset($_GET['Filter'])){
 
    $dummyYear = "$year" . "/01/01";
     echo $genre;
+    echo gettype($revenue);
+
+    $filterSTMTmovieSQL = "SELECT * FROM movies
+    INNER JOIN genreInstance ON genreInstance.movieID=movies.movieID
+    INNER JOIN genres ON genreInstance.genreID=genres.genreID
+    WHERE
+    movies.movieTitle LIKE '%$testing%'";
+
+    if ($revenue != "-1") {
+        $filterSTMTmovieSQL = $filterSTMTmovieSQL . " AND movies.movieRevenue > '%$revenue%'";
+    }
+
+    if ($budget != "-1") {
+        $filterSTMTmovieSQL = $filterSTMTmovieSQL . " AND movies.movieBudget > '%$budget%'";
+    }
+
+    if ($genre != "-1") {
+        $filterSTMTmovieSQL = $filterSTMTmovieSQL . " AND genres.genreID = '$genre'";
+    }
+
+    echo $filterSTMTmovieSQL;
+
+    $filterSTMTmovie = $pdo->prepare($filterSTMTmovieSQL);
+
     //Filter protocol
-   $filterSTMTmovie = $pdo->prepare("SELECT  movies
-                                            FROM
-                                            INNER JOIN genreInstance ON genreInstance.movieID=movies.movieID
-                                            INNER JOIN genres ON genreInstance.genreID=genres.genreID
-                                            WHERE 
-                                            
-                                            movies.movieTitle LIKE '%$testing%'
-                                            AND
-                                              movies.movieRevenue > '%$revenue%'
-                                              AND
-                                              movies.movieBudget > '%$budget%'
-                                              
-                                             AND
-                                              genres.genreID = ‘%$genre%’
-                                               ");
+//    $filterSTMTmovie = $pdo->prepare("SELECT * FROM movies
+//                                             INNER JOIN genreInstance ON genreInstance.movieID=movies.movieID
+//                                             INNER JOIN genres ON genreInstance.genreID=genres.genreID
+//                                             WHERE
+//                                             movies.movieTitle LIKE '%$testing%'
+//                                             AND
+//                                               movies.movieRevenue > '%$revenue%'
+//                                               AND
+//                                               movies.movieBudget > '%$budget%'
+//                                              AND
+//                                               genres.genreID = '%$genre%'
+//                                                ");
 
 
-   $filterSTMTtvseries = $pdo->prepare("SELECT  tvseries
-                                            FROM
+   $filterSTMTtvseries = $pdo->prepare("SELECT * FROM tvSeries
                                             INNER JOIN genreInstance ON genreInstance.tvSeriesID=tvseries.tvSeriesID
                                             INNER JOIN genres ON genreInstance.genreID=genres.genreID
                                             WHERE                                                                                                         
@@ -171,7 +192,7 @@ if (isset($_GET['Filter'])){
                                               AND
                                               tvSeriesBudget > '%$budget%'
                                               AND
-                                              genres.genreID = ‘%$genre%’
+                                              genres.genreID = '%$genre%'
                                                ");
 
 
@@ -179,6 +200,8 @@ if (isset($_GET['Filter'])){
     $filterSTMTmovie->execute();
     $filterSTMTtvseries->execute();
     $filteredArr = array();
+    $finalResultArr = array();
+    $finalResultArr2 = array();
     while ($dbResults5 = $filterSTMTmovie->fetch(PDO::FETCH_ASSOC)) {
         $finalResultArr[] = $dbResults5;
     }
@@ -296,7 +319,7 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
                 <div class="row justify-content-between">
 
                     <select class="btn colour-primary dropdown" id="budget" name="budget">
-                        <option>Sort movie by budget</option>
+                        <option value="-1">Sort movie by budget</option>
                         <option value="10000000">Over 10 million</option>
                         <option value="20000000">Over 20 million</option>
                         <option value="30000000">Over 30 million</option>
@@ -307,7 +330,7 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
                     </select>
 
                     <select class="btn colour-primary  dropdown" id="revenue" name="revenue">
-                        <option>Sort movie by Revenue</option>
+                        <option value="-1">Sort movie by Revenue</option>
                         <option value="10000000">Over 10 million</option>
                         <option value="20000000">Over 20 million</option>
                         <option value="30000000">Over 30 million</option>
@@ -406,7 +429,7 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
                     </select>
 
                     <select class="btn colour-primary dropdown" id="genre" name="genre">
-                        <option>Sort movie by genre</option>
+                        <option value="-1">Sort movie by genre</option>
                         <option value="1">Action</option>
                         <option value="10">Animation</option>
                         <option value="13">Comedy</option>
