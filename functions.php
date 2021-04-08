@@ -11,9 +11,9 @@ function createMovieTvShowArtefact($movieTvShow) {
                 <?php 
                     // generate image link for use on line 238 just below
                     $imageLink = "";
-                    if (array_key_exists("movieID", $movieTvShow)) {
+                    if (array_key_exists("movieImageLink", $movieTvShow)) {
                         $imageLink = $movieTvShow['movieImageLink'];
-                    } elseif (array_key_exists("tvSeriesID", $movieTvShow)) {
+                    } elseif (array_key_exists("tvSeriesImageLink", $movieTvShow)) {
                         $imageLink = $movieTvShow['tvSeriesImageLink'];
                     }
 
