@@ -172,11 +172,11 @@ if (isset($_GET['Filter'])){
     tvseries.tvSeriesName LIKE '%$testing%'";
 
     if ($revenue != "-1") {
-        $filterSTMTtvseriesSQL = $filterSTMTtvseriesSQL . " AND movies.movieRevenue > '%$revenue%'";
+        $filterSTMTtvseriesSQL = $filterSTMTtvseriesSQL . " AND tvseries.tvSeriesRevenue > '%$revenue%'";
     }
 
     if ($budget != "-1") {
-        $filterSTMTtvseriesSQL = $filterSTMTtvseriesSQL . " AND movies.movieBudget > '%$budget%'";
+        $filterSTMTtvseriesSQL = $filterSTMTtvseriesSQL . " AND tvseries.tvSeriesBudget > '%$budget%'";
     }
 
     if ($genre != "-1") {
@@ -347,11 +347,6 @@ $fullActorOrDirectorArrayLength = count($fullActorOrDirectorArray); // used to l
                         <option value="12">Horror</option>
                         <option value="3">Romance</option>
                         <option value="16">Thriller</option>
-                    </select>
-
-                    <select class="btn colour-primary dropdown" id="searchQUERY1" name="searchQUERY1">
-                        <option value="<?php '%movie%' ?>">CONSTANT </option>
-
                     </select>
 
                     <input class="btn btn-customised colour-primary " type="submit" value="Filter" name="Filter">
